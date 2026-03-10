@@ -2,967 +2,1667 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fitness Asistent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SKK Čtyřkoly Fitness</title>
   <style>
+    /* ====================================================
+       RESET & CSS PROMĚNNÉ
+    ==================================================== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
-      --accent: #6c63ff;
-      --accent2: #4ecdc4;
-      --accent3: #ff6b6b;
-      --text: #e8eaf0;
-      --text2: #8890a8;
-      --green: #56cf78;
-      --yellow: #f7c948;
-      --radius: 12px;
+      --navy:    #07111f;
+      --navy2:   #0c1c35;
+      --navy3:   #122540;
+      --navy4:   #192f52;
+      --navy5:   #1f3a65;
+      --gold:    #f5a623;
+      --gold2:   #e6960e;
+      --gold3:   #ffd580;
+      --green:   #2ecc71;
+      --green2:  #27ae60;
+      --red:     #e74c3c;
+      --red2:    #c0392b;
+      --blue:    #5b9bd5;
+      --text:    #dde8f8;
+      --text2:   #7a93bc;
+      --text3:   #3d5578;
+      --border:  #1a3055;
+      --radius:  14px;
+      --nav-h:   66px;
+      --hdr-h:   58px;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--navy);
       color: var(--text);
       min-height: 100vh;
+      padding-top: var(--hdr-h);
+      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
     }
 
+    /* ====================================================
+       HLAVIČKA
+    ==================================================== */
     header {
-      background: var(--surface);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--hdr-h);
+      background: var(--navy2);
       border-bottom: 1px solid var(--border);
-      padding: 0 24px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
-    header span { font-size: 0.85rem; color: var(--text2); margin-left: auto; }
-
-    nav {
-      display: flex;
-      gap: 4px;
       padding: 0 16px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      z-index: 200;
+      gap: 12px;
     }
 
-    nav button {
-      background: none;
-      border: none;
-      color: var(--text2);
-      padding: 12px 18px;
+    .logo-ikona {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; font-weight: 900;
+      color: var(--navy);
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(245,166,35,0.3);
+    }
+
+    .logo-text { line-height: 1.25; }
+    .logo-text .nazev  { font-size: 0.95rem; font-weight: 700; }
+    .logo-text .podtit { font-size: 0.68rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    #hdr-datum { margin-left: auto; font-size: 0.78rem; color: var(--text2); white-space: nowrap; }
+
+    /* ====================================================
+       SPODNÍ NAVIGACE
+    ==================================================== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--navy2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 200;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      background: none; border: none;
+      color: var(--text3);
+      font-size: 0.67rem; font-weight: 600;
       cursor: pointer;
-      font-size: 0.9rem;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
+      padding: 8px 4px;
+      transition: color 0.2s;
+      position: relative;
     }
 
-    nav button.active, nav button:hover {
-      color: var(--text);
-      border-bottom-color: var(--accent);
+    .nav-btn svg { width: 22px; height: 22px; transition: transform 0.2s; }
+
+    .nav-btn.active { color: var(--gold); }
+    .nav-btn.active svg { transform: scale(1.12); }
+
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 3px;
+      background: var(--gold);
+      border-radius: 0 0 4px 4px;
+      transition: width 0.22s;
     }
 
-    nav button.active { color: var(--accent); }
+    .nav-btn.active::after { width: 30px; }
 
-    .page { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
-    .page.active { display: block; }
+    /* ====================================================
+       OBSAH
+    ==================================================== */
+    main {
+      padding: 14px 14px 0;
+      max-width: 580px;
+      margin: 0 auto;
+    }
 
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+    .sekce { display: none; }
+    .sekce.aktivni {
+      display: block;
+      animation: fadeUp 0.22s ease;
+    }
 
-    .card {
-      background: var(--surface);
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ====================================================
+       KARTY
+    ==================================================== */
+    .karta {
+      background: var(--navy2);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 16px;
+      margin-bottom: 12px;
     }
 
-    .card h2 {
-      font-size: 1rem;
+    .karta-tit {
+      font-size: 0.78rem;
+      font-weight: 700;
       color: var(--text2);
-      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
+      gap: 6px;
+    }
+
+    .karta-tit .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ====================================================
+       FORMULÁŘE
+    ==================================================== */
+    .fg { margin-bottom: 12px; }
+    .fg:last-of-type { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.79rem;
+      color: var(--text2);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--navy3);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      -webkit-appearance: none;
+      appearance: none;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+    }
+
+    textarea { resize: none; min-height: 68px; line-height: 1.5; }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a93bc' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 13px center;
+      padding-right: 36px;
+    }
+
+    .rad2  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .rad3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .rad4  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+    @media (max-width: 380px) {
+      .rad4 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ====================================================
+       TLAČÍTKA
+    ==================================================== */
+    .btn {
+      display: block; width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--navy);
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.2px;
+      transition: opacity 0.18s, transform 0.1s;
+      font-family: inherit;
+    }
+
+    .btn:hover  { opacity: 0.87; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text2);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); background: transparent; }
+
+    .btn-sm { padding: 7px 13px; width: auto; display: inline-block; font-size: 0.82rem; border-radius: 8px; }
+
+    .btn-zeleny {
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color: #fff;
+    }
+
+    /* ====================================================
+       STATISTICKÉ ČÍSLA
+    ==================================================== */
+    .stat-mrizka {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat-karta {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .stat-num  { font-size: 2rem; font-weight: 800; line-height: 1.1; }
+    .stat-popis { font-size: 0.75rem; color: var(--text2); margin-top: 3px; }
+
+    /* ====================================================
+       PROGRESS BAR
+    ==================================================== */
+    .prog-wrap {
+      background: var(--navy3);
+      border-radius: 8px; height: 9px;
+      overflow: hidden; margin-top: 8px;
+    }
+
+    .prog-fill {
+      height: 100%; border-radius: 8px;
+      transition: width 0.45s ease;
+    }
+
+    /* ====================================================
+       MAKRO KARTY
+    ==================================================== */
+    .makro-mrizka {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
-    .stat-big {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .stat-sub { font-size: 0.8rem; color: var(--text2); margin-top: 4px; }
-
-    .progress-bar-wrap {
-      background: var(--surface2);
-      border-radius: 6px;
-      height: 8px;
-      margin-top: 10px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      height: 100%;
-      border-radius: 6px;
-      transition: width 0.4s ease;
-    }
-
-    label { font-size: 0.85rem; color: var(--text2); display: block; margin-bottom: 6px; margin-top: 14px; }
-    label:first-child { margin-top: 0; }
-
-    input, select {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus { border-color: var(--accent); }
-
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .input-row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    @media (max-width: 500px) { .input-row4 { grid-template-columns: 1fr 1fr; } }
-
-    button.btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 11px 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-top: 16px;
-    }
-
-    button.btn:hover { opacity: 0.85; }
-    button.btn:active { transform: scale(0.98); }
-    button.btn.secondary { background: var(--surface2); color: var(--text); }
-    button.btn.danger { background: var(--accent3); }
-    button.btn.full { width: 100%; }
-
-    .food-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-
-    .food-item {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .food-item .name { font-weight: 600; font-size: 0.9rem; flex: 1; }
-    .food-item .macros { font-size: 0.78rem; color: var(--text2); }
-    .food-item .kcal { font-size: 0.9rem; color: var(--yellow); font-weight: 600; white-space: nowrap; }
-
-    .food-item .del-btn {
-      background: none;
-      border: none;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: color 0.2s;
-    }
-
-    .food-item .del-btn:hover { color: var(--accent3); }
-
-    .badge {
-      display: inline-block;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 0.75rem;
-      color: var(--text2);
-    }
-
-    /* Chart canvas */
-    .chart-wrap { position: relative; height: 200px; margin-top: 16px; }
-
-    canvas { width: 100% !important; }
-
-    /* Macro rings */
-    .macro-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .macro-card {
-      background: var(--surface2);
+    .makro-karta {
+      background: var(--navy3);
       border-radius: 10px;
-      padding: 14px;
+      padding: 11px 8px;
       text-align: center;
     }
 
-    .macro-card .val { font-size: 1.4rem; font-weight: 700; }
-    .macro-card .lbl { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
-    .macro-card .sub { font-size: 0.7rem; color: var(--text2); }
+    .makro-karta .val { font-size: 1.15rem; font-weight: 700; }
+    .makro-karta .lbl { font-size: 0.68rem; color: var(--text2); margin-top: 3px; }
 
-    .weight-list { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
-
-    .weight-item {
-      background: var(--surface2);
-      border-radius: 8px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    /* ====================================================
+       POLOŽKY SEZNAMU
+    ==================================================== */
+    .pol {
+      background: var(--navy3);
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 7px;
+      display: flex; align-items: center; gap: 10px;
+      position: relative;
     }
 
-    .weight-item .date { font-size: 0.8rem; color: var(--text2); }
-    .weight-item .wval { font-size: 1.05rem; font-weight: 700; color: var(--accent2); }
+    .pol .main      { flex: 1; min-width: 0; }
+    .pol .main .nm  { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pol .main .sb  { font-size: 0.74rem; color: var(--text2); margin-top: 2px; }
+    .pol .hod       { font-size: 0.95rem; font-weight: 700; white-space: nowrap; }
 
-    .weight-item .del-btn {
-      background: none;
-      border: none;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: color 0.2s;
+    .del-btn {
+      background: none; border: none;
+      color: var(--text3); cursor: pointer;
+      font-size: 1.3rem; line-height: 1;
+      padding: 3px 6px; border-radius: 6px;
+      transition: color 0.18s;
+      font-family: inherit;
     }
 
-    .weight-item .del-btn:hover { color: var(--accent3); }
+    .del-btn:hover { color: var(--red); }
 
-    .delta { font-size: 0.75rem; margin-left: 6px; }
-    .delta.up { color: var(--accent3); }
-    .delta.down { color: var(--green); }
-    .delta.same { color: var(--text2); }
+    /* ====================================================
+       ODZNAK
+    ==================================================== */
+    .odznak {
+      display: inline-block;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600;
+    }
 
-    .date-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
+    .odznak-gold  { background: rgba(245,166,35,0.18); color: var(--gold); }
+    .odznak-green { background: rgba(46,204,113,0.18); color: var(--green); }
+    .odznak-red   { background: rgba(231,76,60,0.18);  color: var(--red); }
+    .odznak-blue  { background: rgba(91,155,213,0.18); color: var(--blue); }
+    .odznak-muted { background: rgba(255,255,255,0.06); color: var(--text2); }
+
+    /* ====================================================
+       PILULKY FILTRU
+    ==================================================== */
+    .pilulky { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .pilulka {
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 0.77rem; font-weight: 600;
+      background: var(--navy3); border: 1.5px solid var(--border);
+      color: var(--text2); cursor: pointer;
+      transition: all 0.15s; font-family: inherit;
+    }
+
+    .pilulka.aktivni, .pilulka:hover {
+      background: rgba(245,166,35,0.15);
+      border-color: var(--gold); color: var(--gold);
+    }
+
+    /* ====================================================
+       GRAFY
+    ==================================================== */
+    .graf-obal { position: relative; width: 100%; margin-top: 6px; }
+    .graf-obal canvas { display: block; width: 100% !important; border-radius: 8px; }
+
+    /* ====================================================
+       KALENDÁŘ
+    ==================================================== */
+    .kal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .kal-nav span { font-size: 0.9rem; font-weight: 700; }
+
+    .kal-mrizka {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .kal-den-hdr {
+      text-align: center; font-size: 0.67rem;
+      color: var(--text3); font-weight: 700;
+      padding: 3px 0; text-transform: uppercase;
+    }
+
+    .kal-den {
+      aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 7px; font-size: 0.78rem;
+      color: var(--text2); cursor: default; position: relative;
+    }
+
+    .kal-den.ma-trenink {
+      background: rgba(245,166,35,0.18); color: var(--gold); font-weight: 700;
+    }
+
+    .kal-den.dnes {
+      background: var(--navy4); color: var(--text); font-weight: 700;
+      border: 1.5px solid var(--navy5);
+    }
+
+    .kal-den.dnes.ma-trenink {
+      background: rgba(245,166,35,0.28); border-color: var(--gold);
+    }
+
+    .kal-den.jiny-mesic { opacity: 0.2; }
+
+    /* ====================================================
+       MOTIVAČNÍ BOX
+    ==================================================== */
+    .motiv-box {
+      background: linear-gradient(135deg, var(--navy3), var(--navy4));
+      border: 1px solid var(--gold);
       border-radius: var(--radius);
-      padding: 10px 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+      color: var(--gold3);
+      line-height: 1.6;
+      font-style: italic;
     }
 
-    .date-nav button {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
+    /* ====================================================
+       REKORDY
+    ==================================================== */
+    .rekord-pol {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
     }
 
-    .date-nav button:hover { background: var(--border); }
-    .date-nav .cur-date { flex: 1; text-align: center; font-weight: 600; }
-    .date-nav input[type="date"] { width: auto; }
+    .rekord-pol:last-child { border-bottom: none; }
 
-    .empty {
-      text-align: center;
-      color: var(--text2);
-      padding: 40px 20px;
-      font-size: 0.9rem;
+    .rekord-ikona {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--navy3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
     }
 
+    .rekord-pol .main { flex: 1; }
+    .rekord-pol .main .nm { font-size: 0.82rem; color: var(--text2); }
+    .rekord-pol .main .sb { font-size: 0.73rem; color: var(--text3); margin-top: 1px; }
+    .rekord-pol .val { font-size: 0.9rem; font-weight: 700; color: var(--gold); text-align: right; }
+
+    /* ====================================================
+       TOAST
+    ==================================================== */
     .toast {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s;
-      z-index: 999;
-      pointer-events: none;
+      bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom));
+      left: 50%; transform: translateX(-50%) translateY(14px);
+      background: var(--navy4); border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px; border-radius: 100px;
+      font-size: 0.87rem; font-weight: 600;
+      opacity: 0; transition: all 0.28s;
+      z-index: 300; pointer-events: none;
+      white-space: nowrap; max-width: calc(100vw - 32px);
     }
 
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.zobraz { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.uspech { border-color: var(--green); color: var(--green); }
+    .toast.chyba  { border-color: var(--red);   color: var(--red); }
 
-    .goal-input-row { display: flex; align-items: center; gap: 10px; }
-    .goal-input-row input { max-width: 120px; }
+    /* ====================================================
+       PRÁZDNÝ STAV
+    ==================================================== */
+    .prazdny {
+      text-align: center; padding: 28px 12px;
+      color: var(--text3); font-size: 0.83rem;
+    }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .prazdny .ikona { font-size: 2.2rem; margin-bottom: 8px; }
+
+    /* ====================================================
+       RŮZNÉ UTILITY
+    ==================================================== */
+    .delici { height: 1px; background: var(--border); margin: 12px 0; }
+    .sek-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sek-hdr h2 { font-size: 1.15rem; font-weight: 700; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    @media (min-width: 580px) {
+      main { padding: 18px 18px 0; }
+    }
   </style>
 </head>
 <body>
 
+<!-- ====================================================
+     HLAVIČKA
+==================================================== -->
 <header>
-  <h1>Fitness Asistent</h1>
-  <span id="headerDate"></span>
+  <div class="logo-ikona">S</div>
+  <div class="logo-text">
+    <div class="nazev">SKK Čtyřkoly Fitness</div>
+    <div class="podtit">Osobní fitness deník</div>
+  </div>
+  <div id="hdr-datum"></div>
 </header>
 
-<nav>
-  <button class="active" onclick="showPage('dashboard')">Prehled</button>
-  <button onclick="showPage('food')">Jidlo</button>
-  <button onclick="showPage('weight')">Vaha</button>
-  <button onclick="showPage('goals')">Cile</button>
+<!-- ====================================================
+     OBSAH SEKCÍ
+==================================================== -->
+<main>
+
+  <!-- ============ SEKCE: VÁHA ============ -->
+  <div class="sekce aktivni" id="sek-vaha">
+
+    <div class="sek-hdr"><h2>Váha & Cíl</h2></div>
+
+    <!-- Aktuální / cílová -->
+    <div class="stat-mrizka">
+      <div class="stat-karta">
+        <div class="stat-popis">Aktuální váha</div>
+        <div class="stat-num" id="v-aktualni">—</div>
+        <div class="stat-popis">kg</div>
+      </div>
+      <div class="stat-karta">
+        <div class="stat-popis">Cílová váha</div>
+        <div class="stat-num" id="v-cil" style="color:var(--gold)">—</div>
+        <div class="stat-popis">kg</div>
+      </div>
+    </div>
+
+    <!-- Motivační box -->
+    <div id="v-motiv"></div>
+
+    <!-- Graf vývoje váhy -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--gold)"></span>Vývoj váhy</div>
+      <div class="graf-obal"><canvas id="vaha-graf" height="175"></canvas></div>
+    </div>
+
+    <!-- Formulář -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--blue)"></span>Zaznamenat váhu</div>
+      <div class="rad2">
+        <div class="fg">
+          <label>Datum</label>
+          <input type="date" id="v-datum" />
+        </div>
+        <div class="fg">
+          <label>Váha (kg)</label>
+          <input type="number" id="v-hodnota" placeholder="75.5" step="0.1" min="20" max="300" />
+        </div>
+      </div>
+      <div class="fg" style="margin-top:8px">
+        <label>Cílová váha (kg) — volitelné</label>
+        <input type="number" id="v-cil-input" placeholder="např. 72.0" step="0.1" min="20" max="300" />
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn" onclick="ulozitVahu()">Zaznamenat</button>
+    </div>
+
+    <!-- Historie váhy -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--green)"></span>Historie</div>
+      <div id="v-historie"></div>
+    </div>
+
+  </div>
+
+  <!-- ============ SEKCE: JÍDLO ============ -->
+  <div class="sekce" id="sek-jidlo">
+
+    <div class="sek-hdr"><h2>Jídlo & Kalorie</h2></div>
+
+    <!-- Denní přehled -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--green)"></span>Dnes — <span id="j-datum-nadpis"></span></div>
+      <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; margin-bottom:8px">
+        <div>
+          <div style="font-size:2rem; font-weight:800; line-height:1" id="j-kcal-dnes">0</div>
+          <div style="font-size:0.73rem; color:var(--text2)">kcal přijato</div>
+        </div>
+        <div style="color:var(--text3); font-size:1.4rem; margin-bottom:4px">/</div>
+        <div>
+          <div style="font-size:1.35rem; font-weight:700; color:var(--gold); line-height:1" id="j-kcal-limit">2000</div>
+          <div style="font-size:0.73rem; color:var(--text2)">kcal cíl</div>
+        </div>
+        <div style="margin-left:auto; text-align:right">
+          <div style="font-size:1rem; font-weight:700; line-height:1" id="j-zbyvá-hod">2000</div>
+          <div style="font-size:0.73rem; color:var(--text2)" id="j-zbývá-lbl">zbývá</div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="j-prog" style="background:linear-gradient(90deg, var(--green), var(--gold)); width:0%"></div>
+      </div>
+      <div class="delici"></div>
+      <div class="makro-mrizka">
+        <div class="makro-karta">
+          <div class="val" id="j-bilkoviny" style="color:var(--blue)">0g</div>
+          <div class="lbl">Bílkoviny</div>
+        </div>
+        <div class="makro-karta">
+          <div class="val" id="j-sacharidy" style="color:var(--gold)">0g</div>
+          <div class="lbl">Sacharidy</div>
+        </div>
+        <div class="makro-karta">
+          <div class="val" id="j-tuky" style="color:var(--red)">0g</div>
+          <div class="lbl">Tuky</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulář -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--gold)"></span>Přidat jídlo</div>
+      <div class="rad2">
+        <div class="fg">
+          <label>Datum</label>
+          <input type="date" id="j-datum" />
+        </div>
+        <div class="fg">
+          <label>Denní kcal cíl</label>
+          <input type="number" id="j-kcal-goal" placeholder="2000" min="500" max="9999" />
+        </div>
+      </div>
+      <div class="fg">
+        <label>Název jídla</label>
+        <input type="text" id="j-nazev" placeholder="např. Kuřecí prsa s rýží" />
+      </div>
+      <div class="fg">
+        <label>Kalorie (kcal)</label>
+        <input type="number" id="j-kcal" placeholder="350" min="0" max="9999" />
+      </div>
+      <div class="rad3">
+        <div class="fg">
+          <label>Bílkoviny (g)</label>
+          <input type="number" id="j-bilkoviny-inp" placeholder="0" min="0" />
+        </div>
+        <div class="fg">
+          <label>Sacharidy (g)</label>
+          <input type="number" id="j-sacharidy-inp" placeholder="0" min="0" />
+        </div>
+        <div class="fg">
+          <label>Tuky (g)</label>
+          <input type="number" id="j-tuky-inp" placeholder="0" min="0" />
+        </div>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn" onclick="ulozitJidlo()">Přidat jídlo</button>
+    </div>
+
+    <!-- Dnešní jídla -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--green)"></span>Dnešní jídla</div>
+      <div id="j-dnes-list"></div>
+    </div>
+
+    <!-- 7 dní + graf -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--blue)"></span>Posledních 7 dní</div>
+      <div class="graf-obal"><canvas id="kalorie-graf" height="140"></canvas></div>
+      <div id="j-tyden-list" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+
+  <!-- ============ SEKCE: TRÉNINKY ============ -->
+  <div class="sekce" id="sek-treninky">
+
+    <div class="sek-hdr"><h2>Tréninky</h2></div>
+
+    <div class="stat-mrizka">
+      <div class="stat-karta">
+        <div class="stat-popis">Tento měsíc</div>
+        <div class="stat-num" id="t-mesic-pocet">0</div>
+        <div class="stat-popis">tréninků</div>
+      </div>
+      <div class="stat-karta">
+        <div class="stat-popis">Hodin (měsíc)</div>
+        <div class="stat-num" id="t-mesic-hod" style="color:var(--gold)">0</div>
+        <div class="stat-popis">hodin</div>
+      </div>
+    </div>
+
+    <!-- Formulář -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--gold)"></span>Přidat trénink</div>
+      <div class="rad2">
+        <div class="fg">
+          <label>Datum</label>
+          <input type="date" id="t-datum" />
+        </div>
+        <div class="fg">
+          <label>Délka (min)</label>
+          <input type="number" id="t-delka" placeholder="45" min="1" max="999" />
+        </div>
+      </div>
+      <div class="fg">
+        <label>Typ aktivity</label>
+        <select id="t-typ">
+          <option value="Běh">Běh</option>
+          <option value="Silový trénink">Silový trénink</option>
+          <option value="Cyklistika">Cyklistika</option>
+          <option value="Plavání">Plavání</option>
+          <option value="HIIT">HIIT</option>
+          <option value="Jóga">Jóga</option>
+          <option value="Chůze">Chůze</option>
+          <option value="Jiné">Jiné</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Poznámka (volitelné)</label>
+        <textarea id="t-pozn" placeholder="např. 5 km v parku, skvělý výkon..."></textarea>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn" onclick="ulozitTrenink()">Uložit trénink</button>
+    </div>
+
+    <!-- Měsíční kalendář -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--green)"></span>Měsíční přehled</div>
+      <div class="kal-nav">
+        <button class="btn btn-sm btn-outline" onclick="kalOffset--;obnovitKalendar()">&#8592;</button>
+        <span id="kal-mesic"></span>
+        <button class="btn btn-sm btn-outline" onclick="kalOffset++;obnovitKalendar()">&#8594;</button>
+      </div>
+      <div id="t-kalendar"></div>
+    </div>
+
+    <!-- Seznam + filtr -->
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--blue)"></span>Poslední tréninky</div>
+      <div class="pilulky" id="t-filter-pilulky"></div>
+      <div id="t-seznam"></div>
+    </div>
+
+  </div>
+
+  <!-- ============ SEKCE: STATISTIKY ============ -->
+  <div class="sekce" id="sek-statistiky">
+
+    <div class="sek-hdr"><h2>Statistiky</h2></div>
+
+    <div class="motiv-box" id="st-citat"></div>
+
+    <div class="stat-mrizka">
+      <div class="stat-karta">
+        <div class="stat-popis">Celkem tréninků</div>
+        <div class="stat-num" id="st-tr-celkem">0</div>
+      </div>
+      <div class="stat-karta">
+        <div class="stat-popis">Celkem hodin</div>
+        <div class="stat-num" id="st-hod-celkem" style="color:var(--gold)">0</div>
+      </div>
+      <div class="stat-karta">
+        <div class="stat-popis">Změna váhy</div>
+        <div class="stat-num" id="st-vaha-zmena" style="font-size:1.5rem">—</div>
+      </div>
+      <div class="stat-karta">
+        <div class="stat-popis">Záznamy jídel</div>
+        <div class="stat-num" id="st-jidla-celkem">0</div>
+      </div>
+    </div>
+
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--gold)"></span>Vývoj váhy</div>
+      <div class="graf-obal"><canvas id="st-vaha-graf" height="160"></canvas></div>
+    </div>
+
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--green)"></span>Kalorie — posledních 14 dní</div>
+      <div class="graf-obal"><canvas id="st-kal-graf" height="140"></canvas></div>
+    </div>
+
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--blue)"></span>Tréninky — posledních 8 týdnů</div>
+      <div class="graf-obal"><canvas id="st-tr-graf" height="140"></canvas></div>
+    </div>
+
+    <div class="karta">
+      <div class="karta-tit"><span class="dot" style="background:var(--gold3)"></span>Osobní rekordy</div>
+      <div id="st-rekordy"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- SPODNÍ NAVIGACE -->
+<nav class="bottom-nav">
+  <button class="nav-btn aktivni" onclick="navDo('vaha',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><path d="M12 6v6l3.5 3.5"/>
+    </svg>
+    Váha
+  </button>
+  <button class="nav-btn" onclick="navDo('jidlo',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+      <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+    </svg>
+    Jídlo
+  </button>
+  <button class="nav-btn" onclick="navDo('treninky',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 5.5 L17 3 L21 7 L18.5 9.5"/>
+      <path d="M9.5 18.5 L7 21 L3 17 L5.5 14.5"/>
+      <line x1="5.5" y1="9.5" x2="14.5" y2="18.5"/>
+      <line x1="9.5" y1="5.5" x2="18.5" y2="14.5"/>
+      <circle cx="4" cy="20" r="1.5"/><circle cx="20" cy="4" r="1.5"/>
+    </svg>
+    Tréninky
+  </button>
+  <button class="nav-btn" onclick="navDo('statistiky',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6"  y1="20" x2="6"  y2="14"/>
+    </svg>
+    Statistiky
+  </button>
 </nav>
-
-<!-- DASHBOARD -->
-<div class="page active" id="page-dashboard">
-  <div class="date-nav">
-    <button onclick="changeDay(-1)">&#8592;</button>
-    <span class="cur-date" id="dashDate"></span>
-    <button onclick="changeDay(1)">&#8594;</button>
-    <button onclick="goToday()" style="font-size:0.8rem; padding:6px 10px;">Dnes</button>
-  </div>
-
-  <div class="grid2" style="margin-bottom:20px">
-    <div class="card">
-      <h2>Kalorie dnes</h2>
-      <div class="stat-big" id="dash-kcal">0</div>
-      <div class="stat-sub" id="dash-kcal-goal"></div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="dash-kcal-bar" style="background:var(--accent); width:0%"></div>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Aktualni vaha</h2>
-      <div class="stat-big" id="dash-weight">—</div>
-      <div class="stat-sub" id="dash-weight-delta"></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:20px">
-    <h2>Makronutrienty dnes</h2>
-    <div class="macro-grid">
-      <div class="macro-card">
-        <div class="val" id="dash-protein" style="color:var(--accent)">0g</div>
-        <div class="lbl">Bilkoviny</div>
-        <div class="sub" id="dash-protein-goal"></div>
-      </div>
-      <div class="macro-card">
-        <div class="val" id="dash-carbs" style="color:var(--yellow)">0g</div>
-        <div class="lbl">Sacharidy</div>
-        <div class="sub" id="dash-carbs-goal"></div>
-      </div>
-      <div class="macro-card">
-        <div class="val" id="dash-fat" style="color:var(--accent3)">0g</div>
-        <div class="lbl">Tuky</div>
-        <div class="sub" id="dash-fat-goal"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Dnesi jidla</h2>
-    <div id="dash-food-list"><div class="empty">Zadne zaznamy pro tento den</div></div>
-  </div>
-</div>
-
-<!-- FOOD -->
-<div class="page" id="page-food">
-  <div class="grid2">
-    <div class="card">
-      <h2>Zadat jidlo</h2>
-      <label>Datum</label>
-      <input type="date" id="food-date" />
-      <label>Nazev jidla</label>
-      <input type="text" id="food-name" placeholder="napr. Ovsena kase" />
-      <label>Mnozstvi / porce</label>
-      <input type="text" id="food-amount" placeholder="napr. 100g, 1 porce" />
-      <label>Makronutrienty (na zadane mnozstvi)</label>
-      <div class="input-row4">
-        <div>
-          <label style="margin-top:0">Kalorie</label>
-          <input type="number" id="food-kcal" placeholder="kcal" min="0" />
-        </div>
-        <div>
-          <label style="margin-top:0">Bilkoviny</label>
-          <input type="number" id="food-protein" placeholder="g" min="0" />
-        </div>
-        <div>
-          <label style="margin-top:0">Sacharidy</label>
-          <input type="number" id="food-carbs" placeholder="g" min="0" />
-        </div>
-        <div>
-          <label style="margin-top:0">Tuky</label>
-          <input type="number" id="food-fat" placeholder="g" min="0" />
-        </div>
-      </div>
-      <button class="btn full" onclick="addFood()">Pridat jidlo</button>
-    </div>
-
-    <div class="card">
-      <h2>Oblibena jidla</h2>
-      <div id="favorites-list"><div class="empty">Zadna oblibena jidla</div></div>
-      <button class="btn secondary full" onclick="saveFavorite()" style="margin-top:12px">Ulozit posledni jako oblibene</button>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px">
-    <h2>Jidla dnes (<span id="food-today-date"></span>)</h2>
-    <div id="food-log-list"><div class="empty">Zadne zaznamy</div></div>
-  </div>
-</div>
-
-<!-- WEIGHT -->
-<div class="page" id="page-weight">
-  <div class="grid2">
-    <div class="card">
-      <h2>Zadat vahu</h2>
-      <label>Datum</label>
-      <input type="date" id="weight-date" />
-      <label>Vaha (kg)</label>
-      <input type="number" id="weight-val" placeholder="napr. 75.5" step="0.1" min="20" max="300" />
-      <label>Poznamka (volitelne)</label>
-      <input type="text" id="weight-note" placeholder="napr. rano nalacno" />
-      <button class="btn full" onclick="addWeight()">Zaznamenat vahu</button>
-    </div>
-
-    <div class="card">
-      <h2>Statistiky vahy</h2>
-      <div class="macro-grid" style="grid-template-columns:1fr 1fr; margin-top:0">
-        <div class="macro-card">
-          <div class="val" id="weight-start" style="color:var(--accent2)">—</div>
-          <div class="lbl">Pocatecni</div>
-        </div>
-        <div class="macro-card">
-          <div class="val" id="weight-current" style="color:var(--accent)">—</div>
-          <div class="lbl">Aktualni</div>
-        </div>
-        <div class="macro-card">
-          <div class="val" id="weight-min" style="color:var(--green)">—</div>
-          <div class="lbl">Minimum</div>
-        </div>
-        <div class="macro-card">
-          <div class="val" id="weight-max" style="color:var(--accent3)">—</div>
-          <div class="lbl">Maximum</div>
-        </div>
-      </div>
-      <div style="margin-top:12px; padding:12px; background:var(--surface2); border-radius:8px; text-align:center">
-        <div style="font-size:0.8rem; color:var(--text2)">Zmena celkem</div>
-        <div style="font-size:1.4rem; font-weight:700; margin-top:4px" id="weight-change">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px">
-    <h2>Vyvoj vahy</h2>
-    <div class="chart-wrap">
-      <canvas id="weightChart"></canvas>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px">
-    <h2>Historie vahy</h2>
-    <div id="weight-history"></div>
-  </div>
-</div>
-
-<!-- GOALS -->
-<div class="page" id="page-goals">
-  <div class="card" style="max-width:500px">
-    <h2>Denni cile</h2>
-
-    <label>Kaloricky cil (kcal/den)</label>
-    <input type="number" id="goal-kcal" placeholder="napr. 2000" min="500" max="10000" />
-
-    <label>Bilkoviny (g/den)</label>
-    <input type="number" id="goal-protein" placeholder="napr. 150" min="0" />
-
-    <label>Sacharidy (g/den)</label>
-    <input type="number" id="goal-carbs" placeholder="napr. 200" min="0" />
-
-    <label>Tuky (g/den)</label>
-    <input type="number" id="goal-fat" placeholder="napr. 70" min="0" />
-
-    <label>Cilova vaha (kg)</label>
-    <input type="number" id="goal-weight" placeholder="napr. 75" step="0.1" min="20" max="300" />
-
-    <button class="btn full" onclick="saveGoals()">Ulozit cile</button>
-  </div>
-
-  <div class="card" style="max-width:500px; margin-top:20px">
-    <h2>Data</h2>
-    <p style="font-size:0.85rem; color:var(--text2); margin-bottom:12px">Vsechna data jsou ulozena lokalne v prohlizeci.</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap">
-      <button class="btn secondary" onclick="exportData()">Exportovat JSON</button>
-      <button class="btn danger" onclick="clearAllData()">Smazat vsechna data</button>
-    </div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ===== STATE =====
-  let currentDate = todayStr();
-  let lastFood = null;
+/* ============================================================
+   DATA & ULOŽIŠTĚ
+============================================================ */
+const KLIC = 'skkFitness_v2';
 
-  function todayStr() {
-    return new Date().toISOString().slice(0, 10);
+function nacistData() {
+  try { return JSON.parse(localStorage.getItem(KLIC)) || prazdnaData(); }
+  catch(e) { return prazdnaData(); }
+}
+
+function ulozitData(d) { localStorage.setItem(KLIC, JSON.stringify(d)); }
+
+function prazdnaData() {
+  return { vahy: [], cilVaha: null, jidla: [], treninky: [], nast: { kcalCil: 2000 } };
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function dnesStr() { return new Date().toISOString().slice(0,10); }
+
+function formatD(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${day}. ${m}. ${y}`;
+}
+
+function formatDK(d) {
+  if (!d) return '';
+  const [,m,day] = d.split('-');
+  return `${+day}. ${+m}.`;
+}
+
+function mesicNazev(m) {
+  return ['Leden','Únor','Březen','Duben','Květen','Červen',
+          'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'][m] || '';
+}
+
+function dniPred(n) {
+  const r = [];
+  for (let i = n-1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    r.push(d.toISOString().slice(0,10));
+  }
+  return r;
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function rand(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ============================================================
+   TOAST
+============================================================ */
+let toastTmr;
+function toast(msg, typ='', ms=2600) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast zobraz ' + typ;
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => el.classList.remove('zobraz'), ms);
+}
+
+/* ============================================================
+   NAVIGACE
+============================================================ */
+function navDo(id, btn) {
+  document.querySelectorAll('.sekce').forEach(s => s.classList.remove('aktivni'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('aktivni'));
+  document.getElementById('sek-'+id).classList.add('aktivni');
+  if (btn) btn.classList.add('aktivni');
+  obnovit(id);
+  window.scrollTo(0, 0);
+}
+
+function obnovit(id) {
+  if (id === 'vaha')       obnovitVahu();
+  if (id === 'jidlo')      obnovitJidlo();
+  if (id === 'treninky')   obnovitTreninky();
+  if (id === 'statistiky') obnovitStatistiky();
+}
+
+/* ============================================================
+   CANVAS GRAFY (bez externích knihoven)
+============================================================ */
+function pripravCanvas(id, vyska) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return null;
+  const dpi = window.devicePixelRatio || 1;
+  const w   = canvas.parentElement.clientWidth || 300;
+  const h   = vyska;
+  canvas.width  = w * dpi;
+  canvas.height = h * dpi;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpi, dpi);
+  return { ctx, w, h };
+}
+
+function grafCara(id, lbls, vals, barva, vyska=175) {
+  const g = pripravCanvas(id, vyska);
+  if (!g) return;
+  const { ctx, w, h } = g;
+  ctx.clearRect(0, 0, w, h);
+
+  if (vals.length < 2) {
+    ctx.fillStyle = '#3d5578';
+    ctx.font = '13px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Přidejte alespoň 2 záznamy pro graf', w/2, h/2);
+    return;
   }
 
-  function fmtDate(d) {
-    const [y, m, day] = d.split('-');
-    return `${day}. ${m}. ${y}`;
+  const p  = { l:46, r:14, t:16, b:28 };
+  const cW = w - p.l - p.r;
+  const cH = h - p.t - p.b;
+  const mn = Math.min(...vals) * 0.975;
+  const mx = Math.max(...vals) * 1.025;
+
+  const xP = i => p.l + (i/(vals.length-1))*cW;
+  const yP = v => p.t + (1-(v-mn)/(mx-mn))*cH;
+
+  // mřížka
+  ctx.strokeStyle = '#1a3055';
+  ctx.lineWidth = 1;
+  for (let i=0; i<=4; i++) {
+    const y = p.t + (i/4)*cH;
+    ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(w-p.r, y); ctx.stroke();
+    const v = mx - (i/4)*(mx-mn);
+    ctx.fillStyle = '#3d5578';
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'right';
+    ctx.fillText(v.toFixed(1), p.l-4, y+3);
   }
 
-  // ===== STORAGE =====
-  function loadData() {
-    return JSON.parse(localStorage.getItem('fitnessData') || '{"food":[],"weight":[],"goals":{},"favorites":[]}');
+  // gradient výplň
+  const grad = ctx.createLinearGradient(0, p.t, 0, p.t+cH);
+  grad.addColorStop(0, barva+'50');
+  grad.addColorStop(1, barva+'00');
+  ctx.beginPath();
+  ctx.moveTo(xP(0), yP(vals[0]));
+  vals.forEach((v,i) => { if(i>0) ctx.lineTo(xP(i), yP(v)); });
+  ctx.lineTo(xP(vals.length-1), p.t+cH);
+  ctx.lineTo(xP(0), p.t+cH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // linie
+  ctx.beginPath();
+  ctx.strokeStyle = barva;
+  ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  ctx.moveTo(xP(0), yP(vals[0]));
+  vals.forEach((v,i) => { if(i>0) ctx.lineTo(xP(i), yP(v)); });
+  ctx.stroke();
+
+  // body
+  vals.forEach((v,i) => {
+    ctx.beginPath();
+    ctx.arc(xP(i), yP(v), 4, 0, Math.PI*2);
+    ctx.fillStyle = barva; ctx.fill();
+    ctx.strokeStyle = '#07111f'; ctx.lineWidth = 2; ctx.stroke();
+  });
+
+  // popisky osy X
+  ctx.fillStyle = '#3d5578';
+  ctx.font = '10px Segoe UI';
+  ctx.textAlign = 'center';
+  const krok = Math.max(1, Math.floor(lbls.length/6));
+  lbls.forEach((l,i) => {
+    if (i%krok===0 || i===lbls.length-1) ctx.fillText(l, xP(i), h-4);
+  });
+}
+
+function grafSloupcový(id, lbls, vals, barva, cil, vyska=140) {
+  const g = pripravCanvas(id, vyska);
+  if (!g) return;
+  const { ctx, w, h } = g;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!vals.length || vals.every(v=>v===0)) {
+    ctx.fillStyle = '#3d5578';
+    ctx.font = '13px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Zatím žádná data', w/2, h/2);
+    return;
   }
 
-  function saveData(data) {
-    localStorage.setItem('fitnessData', JSON.stringify(data));
+  const p  = { l:40, r:10, t:14, b:28 };
+  const cW = w - p.l - p.r;
+  const cH = h - p.t - p.b;
+  const mxV = Math.max(...vals, cil||0) * 1.12;
+
+  const gapW = cW / vals.length;
+  const bW   = gapW * 0.58;
+  const xC   = i => p.l + i*gapW + gapW/2;
+  const yP   = v => p.t + (1-v/mxV)*cH;
+
+  // mřížka
+  ctx.strokeStyle = '#1a3055';
+  ctx.lineWidth = 1;
+  for (let i=0; i<=3; i++) {
+    const y = p.t + (i/3)*cH;
+    ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(w-p.r, y); ctx.stroke();
+    ctx.fillStyle = '#3d5578';
+    ctx.font = '10px Segoe UI'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(mxV*(1-i/3)), p.l-4, y+3);
   }
 
-  // ===== TOAST =====
-  function showToast(msg, duration = 2200) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
+  // cílová linie
+  if (cil) {
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = '#f5a62370';
+    ctx.lineWidth = 1.5;
+    const cy = yP(cil);
+    ctx.beginPath(); ctx.moveTo(p.l, cy); ctx.lineTo(w-p.r, cy); ctx.stroke();
+    ctx.setLineDash([]);
   }
 
-  // ===== NAVIGATION =====
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    event.currentTarget.classList.add('active');
-    refreshAll();
+  // sloupce
+  vals.forEach((v,i) => {
+    if (v===0) return;
+    const x = xC(i) - bW/2;
+    const y = yP(v);
+    const bH = p.t + cH - y;
+    const prekoroceno = cil && v > cil;
+    const gr = ctx.createLinearGradient(0, y, 0, y+bH);
+    gr.addColorStop(0, prekoroceno ? '#e74c3c' : barva);
+    gr.addColorStop(1, (prekoroceno ? '#c0392b' : barva)+'55');
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, bW, bH, [4,4,0,0]);
+    else ctx.rect(x, y, bW, bH);
+    ctx.fill();
+  });
+
+  // popisky osy X
+  ctx.fillStyle = '#3d5578';
+  ctx.font = '9px Segoe UI';
+  ctx.textAlign = 'center';
+  const krok = Math.max(1, Math.floor(lbls.length/8));
+  lbls.forEach((l,i) => {
+    if (i%krok===0 || i===lbls.length-1) ctx.fillText(l, xC(i), h-4);
+  });
+}
+
+/* ============================================================
+   SEKCE 1: VÁHA
+============================================================ */
+const V_MOTIVACE = {
+  cil:       ['Neuvěřitelné — cíl splněn! 🏆 Teď udržovat!', 'Přesně tam, kde jsi chtěl být. Skvělá práce! 🎯'],
+  very_close:['Jsi těsně u cíle! Poslední krok! 💪', 'Skoro tam! Drž kurz, konec je blízko! 🔥'],
+  close:     ['Výborně! Na správné cestě — cíl se blíží.', 'Skvělá práce! Pokračuj v tomto tempu. 👊'],
+  mid:       ['Každý den se posouváš blíže. Nevzdávej se!', 'Disciplína dnes = výsledky zítra. Jsi na to!'],
+  far:       ['Velké cíle vyžadují čas. Začátek je za tebou.', 'Malé kroky každý den — velké výsledky časem.'],
+};
+
+function ulozitVahu() {
+  const datum   = document.getElementById('v-datum').value;
+  const hodnota = parseFloat(document.getElementById('v-hodnota').value);
+  const cilStr  = document.getElementById('v-cil-input').value;
+
+  if (!datum)                    return toast('Vyberte datum','chyba');
+  if (!hodnota||hodnota<20||hodnota>300) return toast('Zadejte platnou váhu (20–300 kg)','chyba');
+
+  const data = nacistData();
+
+  if (cilStr) {
+    const c = parseFloat(cilStr);
+    if (c>=20 && c<=300) {
+      data.cilVaha = c;
+      document.getElementById('v-cil-input').value = '';
+    }
   }
 
-  function changeDay(delta) {
-    const d = new Date(currentDate);
-    d.setDate(d.getDate() + delta);
-    currentDate = d.toISOString().slice(0, 10);
-    refreshDashboard();
-  }
+  data.vahy = data.vahy.filter(v => v.datum !== datum);
+  data.vahy.push({ id: Date.now(), datum, hodnota });
+  data.vahy.sort((a,b) => a.datum.localeCompare(b.datum));
+  ulozitData(data);
 
-  function goToday() {
-    currentDate = todayStr();
-    refreshDashboard();
-  }
+  document.getElementById('v-hodnota').value = '';
+  toast('Váha zaznamenána!','uspech');
+  obnovitVahu();
+}
 
-  // ===== FOOD =====
-  function addFood() {
-    const date = document.getElementById('food-date').value;
-    const name = document.getElementById('food-name').value.trim();
-    const amount = document.getElementById('food-amount').value.trim();
-    const kcal = parseFloat(document.getElementById('food-kcal').value) || 0;
-    const protein = parseFloat(document.getElementById('food-protein').value) || 0;
-    const carbs = parseFloat(document.getElementById('food-carbs').value) || 0;
-    const fat = parseFloat(document.getElementById('food-fat').value) || 0;
+function smazatVahu(datum) {
+  const data = nacistData();
+  data.vahy = data.vahy.filter(v => v.datum !== datum);
+  ulozitData(data);
+  toast('Záznam smazán');
+  obnovitVahu();
+}
 
-    if (!name) { showToast('Zadejte nazev jidla'); return; }
-    if (!date) { showToast('Vyberte datum'); return; }
+function obnovitVahu() {
+  const data = nacistData();
+  const vahy = data.vahy;
+  const cil  = data.cilVaha;
+  const akt  = vahy.length ? vahy[vahy.length-1].hodnota : null;
 
-    const entry = { id: Date.now(), date, name, amount, kcal, protein, carbs, fat };
+  document.getElementById('v-aktualni').textContent = akt ? akt.toFixed(1) : '—';
+  document.getElementById('v-cil').textContent      = cil ? cil.toFixed(1) : '—';
 
-    const data = loadData();
-    data.food.push(entry);
-    saveData(data);
+  // motivace
+  const motEl = document.getElementById('v-motiv');
+  if (akt && cil) {
+    const diff  = Math.abs(akt - cil);
+    const smer  = akt > cil ? 'zhubnout' : 'přibrat';
+    let level   = diff<0.1?'cil' : diff<=1?'very_close' : diff<=4?'close' : diff<=8?'mid':'far';
+    const hlaska = rand(V_MOTIVACE[level]);
+    const barva  = diff<0.1?'var(--green)' : diff<=2?'var(--green)' : diff<=5?'var(--gold)':'var(--text2)';
 
-    lastFood = entry;
+    // progress: jak daleko jsme od startu k cíli
+    const start = vahy[0]?.hodnota || akt;
+    const range = Math.abs(start - cil);
+    const prog  = range > 0 ? Math.min(100, Math.max(0, (1 - Math.abs(akt-cil)/range)*100)) : (diff<0.1?100:0);
 
-    document.getElementById('food-name').value = '';
-    document.getElementById('food-amount').value = '';
-    document.getElementById('food-kcal').value = '';
-    document.getElementById('food-protein').value = '';
-    document.getElementById('food-carbs').value = '';
-    document.getElementById('food-fat').value = '';
-
-    showToast('Jidlo pridano');
-    refreshFoodLog();
-    refreshDashboard();
-  }
-
-  function deleteFood(id) {
-    const data = loadData();
-    data.food = data.food.filter(f => f.id !== id);
-    saveData(data);
-    refreshFoodLog();
-    refreshDashboard();
-    showToast('Zaznam smazan');
-  }
-
-  function saveFavorite() {
-    if (!lastFood) { showToast('Nejdrive pridejte jidlo'); return; }
-    const data = loadData();
-    const fav = { ...lastFood, id: Date.now() };
-    delete fav.date;
-    data.favorites = data.favorites || [];
-    if (data.favorites.some(f => f.name === fav.name)) { showToast('Toto jidlo uz je oblibene'); return; }
-    data.favorites.push(fav);
-    saveData(data);
-    showToast('Ulozeno jako oblibene');
-    refreshFavorites();
-  }
-
-  function addFavorite(fav) {
-    const data = loadData();
-    const entry = { ...fav, id: Date.now(), date: document.getElementById('food-date').value || todayStr() };
-    data.food.push(entry);
-    saveData(data);
-    showToast('Pridano z oblibenych');
-    refreshFoodLog();
-    refreshDashboard();
-  }
-
-  function deleteFavorite(id) {
-    const data = loadData();
-    data.favorites = data.favorites.filter(f => f.id !== id);
-    saveData(data);
-    refreshFavorites();
-  }
-
-  function refreshFoodLog() {
-    const data = loadData();
-    const today = document.getElementById('food-date').value || todayStr();
-    document.getElementById('food-today-date').textContent = fmtDate(today);
-    const items = data.food.filter(f => f.date === today).sort((a, b) => a.id - b.id);
-    const el = document.getElementById('food-log-list');
-    el.innerHTML = items.length ? items.map(f => foodItemHTML(f)).join('') : '<div class="empty">Zadne zaznamy</div>';
-  }
-
-  function foodItemHTML(f) {
-    return `<div class="food-item">
-      <div>
-        <div class="name">${esc(f.name)}${f.amount ? ' <span class="badge">' + esc(f.amount) + '</span>' : ''}</div>
-        <div class="macros">B: ${f.protein}g &nbsp; S: ${f.carbs}g &nbsp; T: ${f.fat}g</div>
-      </div>
-      <div class="kcal">${f.kcal} kcal</div>
-      <button class="del-btn" onclick="deleteFood(${f.id})" title="Smazat">&#215;</button>
-    </div>`;
-  }
-
-  function refreshFavorites() {
-    const data = loadData();
-    const favs = data.favorites || [];
-    const el = document.getElementById('favorites-list');
-    if (!favs.length) { el.innerHTML = '<div class="empty">Zadna oblibena jidla</div>'; return; }
-    el.innerHTML = favs.map(f => `
-      <div class="food-item">
-        <div>
-          <div class="name">${esc(f.name)}</div>
-          <div class="macros">${f.kcal} kcal &nbsp; B: ${f.protein}g &nbsp; S: ${f.carbs}g &nbsp; T: ${f.fat}g</div>
+    motEl.innerHTML = `
+      <div class="karta" style="border-color:${barva}30; margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:0.74rem;color:var(--text2);margin-bottom:3px">Do cíle zbývá</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${barva};line-height:1">
+              ${diff<0.1 ? 'CÍL SPLNĚN!' : (akt>cil?'+':'-')+diff.toFixed(1)+' kg'}
+            </div>
+            <div style="font-size:0.8rem;color:var(--text2);margin-top:5px;font-style:italic">${hlaska}</div>
+          </div>
         </div>
-        <button class="btn secondary" style="margin:0;padding:5px 10px;font-size:0.8rem" onclick='addFavorite(${JSON.stringify(f)})'>+</button>
-        <button class="del-btn" onclick="deleteFavorite(${f.id})" title="Smazat">&#215;</button>
+        <div class="prog-wrap" style="margin-top:10px">
+          <div class="prog-fill" style="background:${barva};width:${prog.toFixed(1)}%"></div>
+        </div>
+      </div>`;
+  } else {
+    motEl.innerHTML = '';
+  }
+
+  // graf
+  setTimeout(() => {
+    grafCara('vaha-graf',
+      vahy.map(v => formatDK(v.datum)),
+      vahy.map(v => v.hodnota),
+      '#f5a623', 175);
+  }, 40);
+
+  // historie
+  const histEl = document.getElementById('v-historie');
+  if (!vahy.length) {
+    histEl.innerHTML = '<div class="prazdny"><div class="ikona">⚖️</div>Zatím žádné záznamy váhy</div>';
+    return;
+  }
+  histEl.innerHTML = [...vahy].reverse().map((v, i, arr) => {
+    const prev  = arr[i+1];
+    let delta   = '';
+    if (prev) {
+      const d   = v.hodnota - prev.hodnota;
+      const sgn = d>0 ? '+' : '';
+      const cls = d<0 ? 'odznak-green' : d>0 ? 'odznak-red' : 'odznak-muted';
+      delta     = `<span class="odznak ${cls}">${sgn}${d.toFixed(1)} kg</span>`;
+    }
+    return `<div class="pol">
+      <div class="main">
+        <div class="nm">${formatD(v.datum)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:1.05rem;font-weight:700;color:var(--gold)">${v.hodnota.toFixed(1)} kg</span>
+        ${delta}
+      </div>
+      <button class="del-btn" onclick="smazatVahu('${v.datum}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   SEKCE 2: JÍDLO
+============================================================ */
+function ulozitJidlo() {
+  const datum      = document.getElementById('j-datum').value;
+  const nazev      = document.getElementById('j-nazev').value.trim();
+  const kcal       = parseFloat(document.getElementById('j-kcal').value)          || 0;
+  const bilkoviny  = parseFloat(document.getElementById('j-bilkoviny-inp').value) || 0;
+  const sacharidy  = parseFloat(document.getElementById('j-sacharidy-inp').value) || 0;
+  const tuky       = parseFloat(document.getElementById('j-tuky-inp').value)      || 0;
+  const goalStr    = document.getElementById('j-kcal-goal').value;
+
+  if (!datum) return toast('Vyberte datum','chyba');
+  if (!nazev) return toast('Zadejte název jídla','chyba');
+
+  const data = nacistData();
+
+  if (goalStr) {
+    const g = parseFloat(goalStr);
+    if (g >= 500) {
+      data.nast.kcalCil = g;
+      document.getElementById('j-kcal-goal').value = '';
+    }
+  }
+
+  data.jidla.push({ id: Date.now(), datum, nazev, kcal, bilkoviny, sacharidy, tuky });
+  ulozitData(data);
+
+  ['j-nazev','j-kcal','j-bilkoviny-inp','j-sacharidy-inp','j-tuky-inp'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  toast('Jídlo přidáno!','uspech');
+  obnovitJidlo();
+}
+
+function smazatJidlo(id) {
+  const data = nacistData();
+  data.jidla = data.jidla.filter(j => j.id !== id);
+  ulozitData(data);
+  toast('Jídlo smazáno');
+  obnovitJidlo();
+}
+
+function obnovitJidlo() {
+  const data     = nacistData();
+  const dnes     = dnesStr();
+  const kcalCil  = data.nast.kcalCil || 2000;
+
+  document.getElementById('j-datum-nadpis').textContent = formatD(dnes);
+  document.getElementById('j-kcal-limit').textContent   = kcalCil;
+
+  const dnesJidla = data.jidla.filter(j => j.datum === dnes);
+  const totKcal   = dnesJidla.reduce((s,j) => s+j.kcal, 0);
+  const totB      = dnesJidla.reduce((s,j) => s+j.bilkoviny, 0);
+  const totS      = dnesJidla.reduce((s,j) => s+j.sacharidy, 0);
+  const totT      = dnesJidla.reduce((s,j) => s+j.tuky, 0);
+
+  document.getElementById('j-kcal-dnes').textContent = Math.round(totKcal);
+  const zbyvá = kcalCil - totKcal;
+  document.getElementById('j-zbyvá-hod').textContent = Math.abs(Math.round(zbyvá));
+  const zbEl = document.getElementById('j-zbyvá-hod');
+  zbEl.style.color = zbyvá < 0 ? 'var(--red)' : zbyvá < 200 ? 'var(--gold)' : 'var(--green)';
+  document.getElementById('j-zbývá-lbl').textContent = zbyvá < 0 ? 'překročeno' : 'zbývá';
+
+  document.getElementById('j-prog').style.width = Math.min(100, totKcal/kcalCil*100) + '%';
+
+  document.getElementById('j-bilkoviny').textContent = Math.round(totB)+'g';
+  document.getElementById('j-sacharidy').textContent = Math.round(totS)+'g';
+  document.getElementById('j-tuky').textContent      = Math.round(totT)+'g';
+
+  // dnešní seznam
+  const listEl = document.getElementById('j-dnes-list');
+  if (!dnesJidla.length) {
+    listEl.innerHTML = '<div class="prazdny"><div class="ikona">🍽️</div>Zatím žádná jídla dnes<br>Přidejte první záznam výše.</div>';
+  } else {
+    listEl.innerHTML = dnesJidla.map(j => `
+      <div class="pol">
+        <div class="main">
+          <div class="nm">${esc(j.nazev)}</div>
+          <div class="sb">B: ${j.bilkoviny}g &nbsp;·&nbsp; S: ${j.sacharidy}g &nbsp;·&nbsp; T: ${j.tuky}g</div>
+        </div>
+        <div class="hod" style="color:var(--gold)">${j.kcal} kcal</div>
+        <button class="del-btn" onclick="smazatJidlo(${j.id})">×</button>
       </div>`).join('');
   }
 
-  // ===== WEIGHT =====
-  function addWeight() {
-    const date = document.getElementById('weight-date').value;
-    const val = parseFloat(document.getElementById('weight-val').value);
-    const note = document.getElementById('weight-note').value.trim();
+  // 7-denní graf
+  const tyden     = dniPred(7);
+  const tydenKcal = tyden.map(d => data.jidla.filter(j=>j.datum===d).reduce((s,j)=>s+j.kcal,0));
+  setTimeout(() => grafSloupcový('kalorie-graf', tyden.map(formatDK), tydenKcal, '#27ae60', kcalCil, 140), 40);
 
-    if (!date) { showToast('Vyberte datum'); return; }
-    if (!val || val < 20 || val > 300) { showToast('Zadejte platnou vahu (20-300 kg)'); return; }
+  // 7-denní souhrn
+  const tydenEl = document.getElementById('j-tyden-list');
+  const tydenSDaty = tyden.filter(d => data.jidla.some(j=>j.datum===d)).reverse();
+  if (!tydenSDaty.length) {
+    tydenEl.innerHTML = '';
+    return;
+  }
+  tydenEl.innerHTML = '<div class="delici"></div>' + tydenSDaty.map(d => {
+    const kc  = data.jidla.filter(j=>j.datum===d).reduce((s,j)=>s+j.kcal,0);
+    const pct = Math.min(100, kc/kcalCil*100);
+    const cls = kc > kcalCil ? 'odznak-red' : kc > kcalCil*0.85 ? 'odznak-gold' : 'odznak-green';
+    return `<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center">
+        <span style="font-size:0.8rem;color:var(--text2)">${formatD(d)}</span>
+        <span class="odznak ${cls}">${Math.round(kc)} kcal</span>
+      </div>
+      <div class="prog-wrap" style="height:6px">
+        <div class="prog-fill" style="background:${kc>kcalCil?'var(--red)':'var(--green)'};width:${pct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-    const data = loadData();
-    // Remove existing entry for same date
-    data.weight = data.weight.filter(w => w.date !== date);
-    data.weight.push({ date, val, note });
-    data.weight.sort((a, b) => a.date.localeCompare(b.date));
-    saveData(data);
+/* ============================================================
+   SEKCE 3: TRÉNINKY
+============================================================ */
+let kalOffset = 0;
+let aktivniFilter = 'Vše';
 
-    document.getElementById('weight-val').value = '';
-    document.getElementById('weight-note').value = '';
+const TYP_BARVA = {
+  'Běh':            '#f5a623',
+  'Silový trénink': '#5b9bd5',
+  'Cyklistika':     '#2ecc71',
+  'Plavání':        '#4ecdc4',
+  'HIIT':           '#e74c3c',
+  'Jóga':           '#9b59b6',
+  'Chůze':          '#27ae60',
+  'Jiné':           '#7f8c8d',
+};
 
-    showToast('Vaha zaznamenana');
-    refreshWeight();
-    refreshDashboard();
+function ulozitTrenink() {
+  const datum = document.getElementById('t-datum').value;
+  const delka = parseInt(document.getElementById('t-delka').value);
+  const typ   = document.getElementById('t-typ').value;
+  const pozn  = document.getElementById('t-pozn').value.trim();
+
+  if (!datum)       return toast('Vyberte datum','chyba');
+  if (!delka||delka<1) return toast('Zadejte délku tréninku v minutách','chyba');
+
+  const data = nacistData();
+  data.treninky.push({ id: Date.now(), datum, delka, typ, pozn });
+  data.treninky.sort((a,b) => a.datum.localeCompare(b.datum));
+  ulozitData(data);
+
+  document.getElementById('t-delka').value = '';
+  document.getElementById('t-pozn').value  = '';
+
+  toast('Trénink uložen!','uspech');
+  obnovitTreninky();
+}
+
+function smazatTrenink(id) {
+  const data = nacistData();
+  data.treninky = data.treninky.filter(t => t.id !== id);
+  ulozitData(data);
+  toast('Trénink smazán');
+  obnovitTreninky();
+}
+
+function obnovitTreninky() {
+  const data = nacistData();
+  const dnes = new Date();
+  const mesicStr = `${dnes.getFullYear()}-${String(dnes.getMonth()+1).padStart(2,'0')}`;
+  const mesicT   = data.treninky.filter(t => t.datum.startsWith(mesicStr));
+
+  document.getElementById('t-mesic-pocet').textContent = mesicT.length;
+  document.getElementById('t-mesic-hod').textContent   = (mesicT.reduce((s,t)=>s+t.delka,0)/60).toFixed(1);
+
+  obnovitKalendar();
+
+  // filter pilulky
+  const typy     = ['Vše', ...new Set(data.treninky.map(t=>t.typ))];
+  const pillsEl  = document.getElementById('t-filter-pilulky');
+  pillsEl.innerHTML = typy.map(t =>
+    `<button class="pilulka ${aktivniFilter===t?'aktivni':''}" onclick="nastavitFilter('${esc(t)}')">${esc(t)}</button>`
+  ).join('');
+
+  // seznam
+  const filtered = aktivniFilter==='Vše' ? data.treninky : data.treninky.filter(t=>t.typ===aktivniFilter);
+  const listEl   = document.getElementById('t-seznam');
+
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="prazdny"><div class="ikona">🏋️</div>Zatím žádné tréninky<br>Přidejte první výše.</div>';
+    return;
   }
 
-  function deleteWeight(date) {
-    const data = loadData();
-    data.weight = data.weight.filter(w => w.date !== date);
-    saveData(data);
-    refreshWeight();
-    refreshDashboard();
-    showToast('Zaznam smazan');
+  listEl.innerHTML = [...filtered].reverse().slice(0,25).map(t => {
+    const barva    = TYP_BARVA[t.typ] || '#7f8c8d';
+    const h        = Math.floor(t.delka/60);
+    const m        = t.delka % 60;
+    const delkaStr = h > 0 ? `${h}h ${m}min` : `${m} min`;
+    return `<div class="pol" style="overflow:hidden">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${barva};border-radius:10px 0 0 10px"></div>
+      <div style="width:6px;flex-shrink:0"></div>
+      <div class="main">
+        <div class="nm">${esc(t.typ)}</div>
+        <div class="sb">${formatD(t.datum)}${t.pozn ? ' · '+esc(t.pozn) : ''}</div>
+      </div>
+      <div class="hod" style="color:${barva}">${delkaStr}</div>
+      <button class="del-btn" onclick="smazatTrenink(${t.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function nastavitFilter(typ) {
+  aktivniFilter = typ;
+  obnovitTreninky();
+}
+
+function obnovitKalendar() {
+  const data  = nacistData();
+  const dnes  = new Date();
+  const cDate = new Date(dnes.getFullYear(), dnes.getMonth() + kalOffset, 1);
+  const rok   = cDate.getFullYear();
+  const mes   = cDate.getMonth();
+
+  document.getElementById('kal-mesic').textContent = `${mesicNazev(mes)} ${rok}`;
+
+  const pocetDni  = new Date(rok, mes+1, 0).getDate();
+  const prvniDen  = (new Date(rok, mes, 1).getDay() + 6) % 7; // Po=0
+  const mesicPfx  = `${rok}-${String(mes+1).padStart(2,'0')}`;
+
+  const treninkyDny = new Set(
+    data.treninky
+      .filter(t => t.datum.startsWith(mesicPfx))
+      .map(t => parseInt(t.datum.split('-')[2]))
+  );
+
+  const jeDnesM = rok===dnes.getFullYear() && mes===dnes.getMonth();
+  const dnyTydne = ['Po','Út','St','Čt','Pá','So','Ne'];
+
+  let html = '<div class="kal-mrizka">';
+  dnyTydne.forEach(d => { html += `<div class="kal-den-hdr">${d}</div>`; });
+  for (let i=0; i<prvniDen; i++) html += '<div class="kal-den jiny-mesic"></div>';
+  for (let d=1; d<=pocetDni; d++) {
+    const hasW    = treninkyDny.has(d);
+    const isToday = jeDnesM && d===dnes.getDate();
+    html += `<div class="kal-den ${hasW?'ma-trenink':''} ${isToday?'dnes':''}">${d}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('t-kalendar').innerHTML = html;
+}
+
+/* ============================================================
+   SEKCE 4: STATISTIKY
+============================================================ */
+const CITATY = [
+  '"Tvoje tělo dokáže téměř vše. Musíš přesvědčit svou mysl." — Christopher Sommer',
+  '"Disciplína je most mezi cílem a jeho dosažením." — Jim Rohn',
+  '"Nesrovnávej se s ostatními — soupeř s tím, kým jsi byl včera."',
+  '"Každý trénink tě posouvá blíže. I ten špatný je lepší než žádný."',
+  '"Pokrok, ne dokonalost — to je skutečný cíl."',
+  '"Malé kroky každý den vedou k velkým výsledkům."',
+  '"Výsledky přicházejí k těm, kteří nevzdávají."',
+  '"Neodkládej na zítra to, co tvé tělo potřebuje dnes."',
+];
+
+function obnovitStatistiky() {
+  const data = nacistData();
+
+  document.getElementById('st-citat').textContent = rand(CITATY);
+
+  const totT = data.treninky.length;
+  const totH = data.treninky.reduce((s,t) => s+t.delka, 0) / 60;
+  document.getElementById('st-tr-celkem').textContent    = totT;
+  document.getElementById('st-hod-celkem').textContent   = totH.toFixed(1);
+  document.getElementById('st-jidla-celkem').textContent = data.jidla.length;
+
+  const vahy = data.vahy;
+  if (vahy.length >= 2) {
+    const zmena  = vahy[vahy.length-1].hodnota - vahy[0].hodnota;
+    const zmEl   = document.getElementById('st-vaha-zmena');
+    zmEl.textContent = (zmena>0?'+':'')+zmena.toFixed(1)+' kg';
+    zmEl.style.color  = zmena<0?'var(--green)':zmena>0?'var(--red)':'var(--text2)';
+  } else {
+    document.getElementById('st-vaha-zmena').textContent = '—';
   }
 
-  function refreshWeight() {
-    const data = loadData();
-    const weights = data.weight;
+  // grafy
+  setTimeout(() => {
+    grafCara('st-vaha-graf', vahy.map(v=>formatDK(v.datum)), vahy.map(v=>v.hodnota), '#f5a623', 160);
 
-    // Stats
-    if (weights.length) {
-      const vals = weights.map(w => w.val);
-      document.getElementById('weight-start').textContent = weights[0].val.toFixed(1) + ' kg';
-      document.getElementById('weight-current').textContent = weights[weights.length - 1].val.toFixed(1) + ' kg';
-      document.getElementById('weight-min').textContent = Math.min(...vals).toFixed(1) + ' kg';
-      document.getElementById('weight-max').textContent = Math.max(...vals).toFixed(1) + ' kg';
-      const diff = weights[weights.length - 1].val - weights[0].val;
-      const chEl = document.getElementById('weight-change');
-      chEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' kg';
-      chEl.style.color = diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--accent3)' : 'var(--text2)';
-    } else {
-      ['weight-start', 'weight-current', 'weight-min', 'weight-max'].forEach(id => document.getElementById(id).textContent = '—');
-      document.getElementById('weight-change').textContent = '—';
+    const dni14    = dniPred(14);
+    const kal14    = dni14.map(d => data.jidla.filter(j=>j.datum===d).reduce((s,j)=>s+j.kcal,0));
+    grafSloupcový('st-kal-graf', dni14.map(formatDK), kal14, '#27ae60', data.nast.kcalCil||2000, 140);
+
+    // tréninky po týdnech (8 týdnů)
+    const tydny = [], tydnyLbl = [];
+    for (let i=7; i>=0; i--) {
+      const end   = new Date(); end.setDate(end.getDate() - i*7);
+      const start = new Date(end); start.setDate(start.getDate() - 6);
+      const es = end.toISOString().slice(0,10);
+      const ss = start.toISOString().slice(0,10);
+      tydny.push(data.treninky.filter(t => t.datum>=ss && t.datum<=es).length);
+      tydnyLbl.push(formatDK(es));
     }
+    grafSloupcový('st-tr-graf', tydnyLbl, tydny, '#5b9bd5', undefined, 140);
+  }, 40);
 
-    // History list
-    const hist = document.getElementById('weight-history');
-    if (!weights.length) { hist.innerHTML = '<div class="empty">Zadne zaznamy vahy</div>'; } else {
-      hist.innerHTML = '<div class="weight-list">' + [...weights].reverse().map((w, i, arr) => {
-        const prev = arr[i + 1];
-        let deltaHTML = '';
-        if (prev) {
-          const d = w.val - prev.val;
-          const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
-          const sign = d > 0 ? '+' : '';
-          deltaHTML = `<span class="delta ${cls}">${sign}${d.toFixed(1)} kg</span>`;
-        }
-        return `<div class="weight-item">
-          <div>
-            <div class="date">${fmtDate(w.date)}${w.note ? ' — ' + esc(w.note) : ''}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="wval">${w.val.toFixed(1)} kg</span>
-            ${deltaHTML}
-          </div>
-          <button class="del-btn" onclick="deleteWeight('${w.date}')" title="Smazat">&#215;</button>
-        </div>`;
-      }).join('') + '</div>';
+  // osobní rekordy
+  const rek = [];
+
+  if (data.treninky.length > 0) {
+    const nejdelsi = data.treninky.reduce((a,b) => a.delka>b.delka?a:b);
+    const h = Math.floor(nejdelsi.delka/60), m = nejdelsi.delka%60;
+    rek.push({ i:'⏱️', n:'Nejdelší trénink', v: h>0?`${h}h ${m}min`:`${m} min`, s:`${nejdelsi.typ} · ${formatD(nejdelsi.datum)}` });
+
+    const dnyMap = {};
+    data.treninky.forEach(t => { dnyMap[t.datum] = (dnyMap[t.datum]||0)+1; });
+    const nejaktiv = Object.entries(dnyMap).sort((a,b)=>b[1]-a[1])[0];
+    if (nejaktiv) rek.push({ i:'🔥', n:'Nejaktivnější den', v:`${nejaktiv[1]}× trénink`, s: formatD(nejaktiv[0]) });
+
+    // nejdelší série
+    const trDny = [...new Set(data.treninky.map(t=>t.datum))].sort();
+    let maxS=1, aktS=1;
+    for (let i=1; i<trDny.length; i++) {
+      const diff = (new Date(trDny[i]) - new Date(trDny[i-1])) / 86400000;
+      aktS = diff===1 ? aktS+1 : 1;
+      maxS = Math.max(maxS, aktS);
     }
+    if (maxS>1) rek.push({ i:'📅', n:'Nejdelší série', v:`${maxS} dní v řadě`, s:'po sobě jdoucí tréninky' });
 
-    drawWeightChart(weights);
+    const typMap = {};
+    data.treninky.forEach(t => { typMap[t.typ]=(typMap[t.typ]||0)+1; });
+    const oblibeny = Object.entries(typMap).sort((a,b)=>b[1]-a[1])[0];
+    if (oblibeny) rek.push({ i:'🏆', n:'Nejčastější aktivita', v: oblibeny[0], s:`${oblibeny[1]}× celkem` });
   }
 
-  // ===== CHART =====
-  let weightChartInstance = null;
+  if (vahy.length >= 2) {
+    const min = vahy.reduce((a,b)=>a.hodnota<b.hodnota?a:b);
+    rek.push({ i:'⚖️', n:'Nejnižší zaznamenaná váha', v:`${min.hodnota.toFixed(1)} kg`, s: formatD(min.datum) });
+  }
 
-  function drawWeightChart(weights) {
-    const canvas = document.getElementById('weightChart');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.parentElement.clientWidth;
-    const H = 200;
-    canvas.width = W;
-    canvas.height = H;
+  if (data.jidla.length > 0) {
+    const kcalCil = data.nast.kcalCil || 2000;
+    const dMap = {};
+    data.jidla.forEach(j => { dMap[j.datum]=(dMap[j.datum]||0)+j.kcal; });
+    const best = Object.entries(dMap).sort((a,b)=>Math.abs(a[1]-kcalCil)-Math.abs(b[1]-kcalCil))[0];
+    if (best) rek.push({ i:'🥗', n:'Nejlepší kalorický den', v:`${Math.round(best[1])} kcal`, s: formatD(best[0]) });
+  }
 
-    ctx.clearRect(0, 0, W, H);
+  const rekEl = document.getElementById('st-rekordy');
+  rekEl.innerHTML = rek.length
+    ? rek.map(r => `<div class="rekord-pol">
+        <div class="rekord-ikona">${r.i}</div>
+        <div class="main"><div class="nm">${r.n}</div><div class="sb">${r.s}</div></div>
+        <div class="val">${r.v}</div>
+      </div>`).join('')
+    : '<div class="prazdny"><div class="ikona">🏅</div>Přidejte více dat pro osobní rekordy</div>';
+}
 
-    if (weights.length < 2) {
-      ctx.fillStyle = '#8890a8';
-      ctx.font = '14px Segoe UI';
-      ctx.textAlign = 'center';
-      ctx.fillText('Pridejte alespon 2 zaznamy pro zobrazeni grafu', W / 2, H / 2);
-      return;
+/* ============================================================
+   DEMO DATA (pouze při prvním spuštění)
+============================================================ */
+function vlozitDemo() {
+  const data = nacistData();
+  if (data.vahy.length || data.jidla.length || data.treninky.length) return;
+
+  const dnes = new Date();
+
+  // Váhy — 14 dní
+  let v = 84.8;
+  for (let i=13; i>=0; i--) {
+    const d = new Date(dnes); d.setDate(d.getDate()-i);
+    v = parseFloat((v - 0.18 + (Math.random()-0.5)*0.25).toFixed(1));
+    data.vahy.push({ id: Date.now()+i*1000, datum: d.toISOString().slice(0,10), hodnota: Math.max(v,78) });
+  }
+  data.cilVaha = 78.0;
+
+  // Jídla — 7 dní
+  const vzory = [
+    { nazev:'Ovesná kaše s banánem',    kcal:380, bilkoviny:14, sacharidy:62, tuky:8  },
+    { nazev:'Kuřecí prsa s rýží',        kcal:450, bilkoviny:42, sacharidy:48, tuky:7  },
+    { nazev:'Proteinový shake',          kcal:220, bilkoviny:30, sacharidy:18, tuky:3  },
+    { nazev:'Řecký jogurt s ovocem',     kcal:180, bilkoviny:12, sacharidy:22, tuky:4  },
+    { nazev:'Celozrnný chléb s vejcem',  kcal:290, bilkoviny:16, sacharidy:32, tuky:9  },
+    { nazev:'Losos se zeleninou',        kcal:420, bilkoviny:38, sacharidy:12, tuky:22 },
+    { nazev:'Těstoviny s tuňákem',       kcal:510, bilkoviny:32, sacharidy:68, tuky:10 },
+  ];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(dnes); d.setDate(d.getDate()-i);
+    const datum = d.toISOString().slice(0,10);
+    const n = 2 + Math.floor(Math.random()*2);
+    for (let j=0; j<n; j++) {
+      const vz = vzory[(i+j)%vzory.length];
+      data.jidla.push({ id: Date.now()+i*100+j, datum, ...vz });
     }
+  }
+  data.nast.kcalCil = 2200;
 
-    const vals = weights.map(w => w.val);
-    const min = Math.min(...vals) - 1;
-    const max = Math.max(...vals) + 1;
-    const pad = { l: 50, r: 20, t: 20, b: 30 };
-    const cW = W - pad.l - pad.r;
-    const cH = H - pad.t - pad.b;
-
-    function xPos(i) { return pad.l + (i / (weights.length - 1)) * cW; }
-    function yPos(v) { return pad.t + (1 - (v - min) / (max - min)) * cH; }
-
-    // Grid lines
-    ctx.strokeStyle = '#2e3250';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = pad.t + (i / 4) * cH;
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-      const v = max - (i / 4) * (max - min);
-      ctx.fillStyle = '#8890a8';
-      ctx.font = '11px Segoe UI';
-      ctx.textAlign = 'right';
-      ctx.fillText(v.toFixed(1), pad.l - 6, y + 4);
-    }
-
-    // Gradient fill
-    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
-    grad.addColorStop(0, 'rgba(78,205,196,0.35)');
-    grad.addColorStop(1, 'rgba(78,205,196,0)');
-    ctx.beginPath();
-    ctx.moveTo(xPos(0), yPos(vals[0]));
-    weights.forEach((w, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(w.val)); });
-    ctx.lineTo(xPos(weights.length - 1), pad.t + cH);
-    ctx.lineTo(xPos(0), pad.t + cH);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // Line
-    ctx.beginPath();
-    ctx.strokeStyle = '#4ecdc4';
-    ctx.lineWidth = 2.5;
-    ctx.lineJoin = 'round';
-    ctx.moveTo(xPos(0), yPos(vals[0]));
-    weights.forEach((w, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(w.val)); });
-    ctx.stroke();
-
-    // Points
-    weights.forEach((w, i) => {
-      ctx.beginPath();
-      ctx.arc(xPos(i), yPos(w.val), 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#4ecdc4';
-      ctx.fill();
-      ctx.strokeStyle = '#1a1d27';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+  // Tréninky — 21 dní
+  const typy = ['Běh','Silový trénink','Cyklistika','HIIT','Jóga','Chůze','Silový trénink','Běh'];
+  [0,2,3,5,7,9,10,12,14,16,17,19,21].forEach((off, idx) => {
+    const d = new Date(dnes); d.setDate(d.getDate()-off);
+    data.treninky.push({
+      id: Date.now()+off*50,
+      datum: d.toISOString().slice(0,10),
+      typ: typy[idx%typy.length],
+      delka: 30+Math.floor(Math.random()*60),
+      pozn: '',
     });
-
-    // Date labels (only first, last, and some in between)
-    ctx.fillStyle = '#8890a8';
-    ctx.font = '10px Segoe UI';
-    ctx.textAlign = 'center';
-    const labelIndices = new Set([0, weights.length - 1]);
-    if (weights.length > 3) labelIndices.add(Math.floor(weights.length / 2));
-    labelIndices.forEach(i => {
-      const d = weights[i].date.slice(5).replace('-', '.');
-      ctx.fillText(d, xPos(i), H - 6);
-    });
-  }
-
-  // ===== DASHBOARD =====
-  function refreshDashboard() {
-    const data = loadData();
-    const goals = data.goals || {};
-
-    document.getElementById('dashDate').textContent = fmtDate(currentDate) + (currentDate === todayStr() ? ' (dnes)' : '');
-    document.getElementById('headerDate').textContent = fmtDate(todayStr());
-
-    // Calories
-    const dayFood = data.food.filter(f => f.date === currentDate);
-    const totKcal = dayFood.reduce((s, f) => s + (f.kcal || 0), 0);
-    const totProtein = dayFood.reduce((s, f) => s + (f.protein || 0), 0);
-    const totCarbs = dayFood.reduce((s, f) => s + (f.carbs || 0), 0);
-    const totFat = dayFood.reduce((s, f) => s + (f.fat || 0), 0);
-
-    document.getElementById('dash-kcal').textContent = Math.round(totKcal);
-    const gk = goals.kcal || 0;
-    document.getElementById('dash-kcal-goal').textContent = gk ? `Cil: ${gk} kcal (${Math.round(totKcal / gk * 100)}%)` : 'Cil neni nastaven';
-    document.getElementById('dash-kcal-bar').style.width = gk ? Math.min(100, totKcal / gk * 100) + '%' : '0%';
-
-    document.getElementById('dash-protein').textContent = Math.round(totProtein) + 'g';
-    document.getElementById('dash-carbs').textContent = Math.round(totCarbs) + 'g';
-    document.getElementById('dash-fat').textContent = Math.round(totFat) + 'g';
-    document.getElementById('dash-protein-goal').textContent = goals.protein ? `cil: ${goals.protein}g` : '';
-    document.getElementById('dash-carbs-goal').textContent = goals.carbs ? `cil: ${goals.carbs}g` : '';
-    document.getElementById('dash-fat-goal').textContent = goals.fat ? `cil: ${goals.fat}g` : '';
-
-    // Weight
-    const weights = data.weight;
-    if (weights.length) {
-      const latest = weights[weights.length - 1];
-      document.getElementById('dash-weight').textContent = latest.val.toFixed(1) + ' kg';
-      const prev = weights[weights.length - 2];
-      if (prev) {
-        const d = latest.val - prev.val;
-        const sign = d > 0 ? '+' : '';
-        const color = d < 0 ? 'var(--green)' : d > 0 ? 'var(--accent3)' : 'var(--text2)';
-        document.getElementById('dash-weight-delta').innerHTML = `<span style="color:${color}">${sign}${d.toFixed(1)} kg od posledniho zaznamu</span>`;
-      } else {
-        document.getElementById('dash-weight-delta').textContent = '';
-      }
-    } else {
-      document.getElementById('dash-weight').textContent = '—';
-      document.getElementById('dash-weight-delta').textContent = 'Zadny zaznam vahy';
-    }
-
-    // Food list
-    const flEl = document.getElementById('dash-food-list');
-    flEl.innerHTML = dayFood.length ? dayFood.map(f => foodItemHTML(f)).join('') : '<div class="empty">Zadne zaznamy pro tento den</div>';
-  }
-
-  // ===== GOALS =====
-  function saveGoals() {
-    const goals = {
-      kcal: parseFloat(document.getElementById('goal-kcal').value) || 0,
-      protein: parseFloat(document.getElementById('goal-protein').value) || 0,
-      carbs: parseFloat(document.getElementById('goal-carbs').value) || 0,
-      fat: parseFloat(document.getElementById('goal-fat').value) || 0,
-      weight: parseFloat(document.getElementById('goal-weight').value) || 0,
-    };
-    const data = loadData();
-    data.goals = goals;
-    saveData(data);
-    showToast('Cile ulozeny');
-    refreshDashboard();
-  }
-
-  function loadGoalsForm() {
-    const data = loadData();
-    const g = data.goals || {};
-    if (g.kcal) document.getElementById('goal-kcal').value = g.kcal;
-    if (g.protein) document.getElementById('goal-protein').value = g.protein;
-    if (g.carbs) document.getElementById('goal-carbs').value = g.carbs;
-    if (g.fat) document.getElementById('goal-fat').value = g.fat;
-    if (g.weight) document.getElementById('goal-weight').value = g.weight;
-  }
-
-  // ===== EXPORT / CLEAR =====
-  function exportData() {
-    const data = loadData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fitness-data-' + todayStr() + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function clearAllData() {
-    if (!confirm('Opravdu chcete smazat vsechna data? Tato akce je nevratna.')) return;
-    localStorage.removeItem('fitnessData');
-    showToast('Vsechna data smazana');
-    refreshAll();
-  }
-
-  // ===== UTILS =====
-  function esc(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  function refreshAll() {
-    refreshDashboard();
-    refreshFoodLog();
-    refreshFavorites();
-    refreshWeight();
-    loadGoalsForm();
-  }
-
-  // ===== INIT =====
-  document.addEventListener('DOMContentLoaded', () => {
-    const today = todayStr();
-    document.getElementById('food-date').value = today;
-    document.getElementById('weight-date').value = today;
-    refreshAll();
   });
+  data.treninky.sort((a,b)=>a.datum.localeCompare(b.datum));
 
+  ulozitData(data);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function init() {
+  const dnes = dnesStr();
+
+  // Datum do formulářů
+  document.getElementById('v-datum').value = dnes;
+  document.getElementById('j-datum').value = dnes;
+  document.getElementById('t-datum').value = dnes;
+
+  // Datum v hlavičce
+  const mesice = ['ledna','února','března','dubna','května','června',
+                  'července','srpna','září','října','listopadu','prosince'];
+  const d = new Date();
+  document.getElementById('hdr-datum').textContent =
+    `${d.getDate()}. ${mesice[d.getMonth()]} ${d.getFullYear()}`;
+
+  vlozitDemo();
+  obnovitVahu();
+
+  // Překreslení grafů při změně šířky okna
+  let resizeTmr;
   window.addEventListener('resize', () => {
-    const data = loadData();
-    drawWeightChart(data.weight || []);
+    clearTimeout(resizeTmr);
+    resizeTmr = setTimeout(() => {
+      const akt = document.querySelector('.sekce.aktivni');
+      if (akt) obnovit(akt.id.replace('sek-',''));
+    }, 180);
   });
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
