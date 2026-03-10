@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitness Asistent</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #4ecdc4;
+      --accent3: #ff6b6b;
+      --text: #e8eaf0;
+      --text2: #8890a8;
+      --green: #56cf78;
+      --yellow: #f7c948;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    header span { font-size: 0.85rem; color: var(--text2); margin-left: auto; }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--text2);
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav button.active, nav button:hover {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    nav button.active { color: var(--accent); }
+
+    .page { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      color: var(--text2);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-big {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-sub { font-size: 0.8rem; color: var(--text2); margin-top: 4px; }
+
+    .progress-bar-wrap {
+      background: var(--surface2);
+      border-radius: 6px;
+      height: 8px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+
+    label { font-size: 0.85rem; color: var(--text2); display: block; margin-bottom: 6px; margin-top: 14px; }
+    label:first-child { margin-top: 0; }
+
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .input-row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 500px) { .input-row4 { grid-template-columns: 1fr 1fr; } }
+
+    button.btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 16px;
+    }
+
+    button.btn:hover { opacity: 0.85; }
+    button.btn:active { transform: scale(0.98); }
+    button.btn.secondary { background: var(--surface2); color: var(--text); }
+    button.btn.danger { background: var(--accent3); }
+    button.btn.full { width: 100%; }
+
+    .food-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+    .food-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .food-item .name { font-weight: 600; font-size: 0.9rem; flex: 1; }
+    .food-item .macros { font-size: 0.78rem; color: var(--text2); }
+    .food-item .kcal { font-size: 0.9rem; color: var(--yellow); font-weight: 600; white-space: nowrap; }
+
+    .food-item .del-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .food-item .del-btn:hover { color: var(--accent3); }
+
+    .badge {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      color: var(--text2);
+    }
+
+    /* Chart canvas */
+    .chart-wrap { position: relative; height: 200px; margin-top: 16px; }
+
+    canvas { width: 100% !important; }
+
+    /* Macro rings */
+    .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .macro-card {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .macro-card .val { font-size: 1.4rem; font-weight: 700; }
+    .macro-card .lbl { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
+    .macro-card .sub { font-size: 0.7rem; color: var(--text2); }
+
+    .weight-list { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+
+    .weight-item {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .weight-item .date { font-size: 0.8rem; color: var(--text2); }
+    .weight-item .wval { font-size: 1.05rem; font-weight: 700; color: var(--accent2); }
+
+    .weight-item .del-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .weight-item .del-btn:hover { color: var(--accent3); }
+
+    .delta { font-size: 0.75rem; margin-left: 6px; }
+    .delta.up { color: var(--accent3); }
+    .delta.down { color: var(--green); }
+    .delta.same { color: var(--text2); }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+    }
+
+    .date-nav button {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .date-nav button:hover { background: var(--border); }
+    .date-nav .cur-date { flex: 1; text-align: center; font-weight: 600; }
+    .date-nav input[type="date"] { width: auto; }
+
+    .empty {
+      text-align: center;
+      color: var(--text2);
+      padding: 40px 20px;
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .goal-input-row { display: flex; align-items: center; gap: 10px; }
+    .goal-input-row input { max-width: 120px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Fitness Asistent</h1>
+  <span id="headerDate"></span>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('dashboard')">Prehled</button>
+  <button onclick="showPage('food')">Jidlo</button>
+  <button onclick="showPage('weight')">Vaha</button>
+  <button onclick="showPage('goals')">Cile</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="date-nav">
+    <button onclick="changeDay(-1)">&#8592;</button>
+    <span class="cur-date" id="dashDate"></span>
+    <button onclick="changeDay(1)">&#8594;</button>
+    <button onclick="goToday()" style="font-size:0.8rem; padding:6px 10px;">Dnes</button>
+  </div>
+
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card">
+      <h2>Kalorie dnes</h2>
+      <div class="stat-big" id="dash-kcal">0</div>
+      <div class="stat-sub" id="dash-kcal-goal"></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="dash-kcal-bar" style="background:var(--accent); width:0%"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Aktualni vaha</h2>
+      <div class="stat-big" id="dash-weight">—</div>
+      <div class="stat-sub" id="dash-weight-delta"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Makronutrienty dnes</h2>
+    <div class="macro-grid">
+      <div class="macro-card">
+        <div class="val" id="dash-protein" style="color:var(--accent)">0g</div>
+        <div class="lbl">Bilkoviny</div>
+        <div class="sub" id="dash-protein-goal"></div>
+      </div>
+      <div class="macro-card">
+        <div class="val" id="dash-carbs" style="color:var(--yellow)">0g</div>
+        <div class="lbl">Sacharidy</div>
+        <div class="sub" id="dash-carbs-goal"></div>
+      </div>
+      <div class="macro-card">
+        <div class="val" id="dash-fat" style="color:var(--accent3)">0g</div>
+        <div class="lbl">Tuky</div>
+        <div class="sub" id="dash-fat-goal"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Dnesi jidla</h2>
+    <div id="dash-food-list"><div class="empty">Zadne zaznamy pro tento den</div></div>
+  </div>
+</div>
+
+<!-- FOOD -->
+<div class="page" id="page-food">
+  <div class="grid2">
+    <div class="card">
+      <h2>Zadat jidlo</h2>
+      <label>Datum</label>
+      <input type="date" id="food-date" />
+      <label>Nazev jidla</label>
+      <input type="text" id="food-name" placeholder="napr. Ovsena kase" />
+      <label>Mnozstvi / porce</label>
+      <input type="text" id="food-amount" placeholder="napr. 100g, 1 porce" />
+      <label>Makronutrienty (na zadane mnozstvi)</label>
+      <div class="input-row4">
+        <div>
+          <label style="margin-top:0">Kalorie</label>
+          <input type="number" id="food-kcal" placeholder="kcal" min="0" />
+        </div>
+        <div>
+          <label style="margin-top:0">Bilkoviny</label>
+          <input type="number" id="food-protein" placeholder="g" min="0" />
+        </div>
+        <div>
+          <label style="margin-top:0">Sacharidy</label>
+          <input type="number" id="food-carbs" placeholder="g" min="0" />
+        </div>
+        <div>
+          <label style="margin-top:0">Tuky</label>
+          <input type="number" id="food-fat" placeholder="g" min="0" />
+        </div>
+      </div>
+      <button class="btn full" onclick="addFood()">Pridat jidlo</button>
+    </div>
+
+    <div class="card">
+      <h2>Oblibena jidla</h2>
+      <div id="favorites-list"><div class="empty">Zadna oblibena jidla</div></div>
+      <button class="btn secondary full" onclick="saveFavorite()" style="margin-top:12px">Ulozit posledni jako oblibene</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Jidla dnes (<span id="food-today-date"></span>)</h2>
+    <div id="food-log-list"><div class="empty">Zadne zaznamy</div></div>
+  </div>
+</div>
+
+<!-- WEIGHT -->
+<div class="page" id="page-weight">
+  <div class="grid2">
+    <div class="card">
+      <h2>Zadat vahu</h2>
+      <label>Datum</label>
+      <input type="date" id="weight-date" />
+      <label>Vaha (kg)</label>
+      <input type="number" id="weight-val" placeholder="napr. 75.5" step="0.1" min="20" max="300" />
+      <label>Poznamka (volitelne)</label>
+      <input type="text" id="weight-note" placeholder="napr. rano nalacno" />
+      <button class="btn full" onclick="addWeight()">Zaznamenat vahu</button>
+    </div>
+
+    <div class="card">
+      <h2>Statistiky vahy</h2>
+      <div class="macro-grid" style="grid-template-columns:1fr 1fr; margin-top:0">
+        <div class="macro-card">
+          <div class="val" id="weight-start" style="color:var(--accent2)">—</div>
+          <div class="lbl">Pocatecni</div>
+        </div>
+        <div class="macro-card">
+          <div class="val" id="weight-current" style="color:var(--accent)">—</div>
+          <div class="lbl">Aktualni</div>
+        </div>
+        <div class="macro-card">
+          <div class="val" id="weight-min" style="color:var(--green)">—</div>
+          <div class="lbl">Minimum</div>
+        </div>
+        <div class="macro-card">
+          <div class="val" id="weight-max" style="color:var(--accent3)">—</div>
+          <div class="lbl">Maximum</div>
+        </div>
+      </div>
+      <div style="margin-top:12px; padding:12px; background:var(--surface2); border-radius:8px; text-align:center">
+        <div style="font-size:0.8rem; color:var(--text2)">Zmena celkem</div>
+        <div style="font-size:1.4rem; font-weight:700; margin-top:4px" id="weight-change">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Vyvoj vahy</h2>
+    <div class="chart-wrap">
+      <canvas id="weightChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Historie vahy</h2>
+    <div id="weight-history"></div>
+  </div>
+</div>
+
+<!-- GOALS -->
+<div class="page" id="page-goals">
+  <div class="card" style="max-width:500px">
+    <h2>Denni cile</h2>
+
+    <label>Kaloricky cil (kcal/den)</label>
+    <input type="number" id="goal-kcal" placeholder="napr. 2000" min="500" max="10000" />
+
+    <label>Bilkoviny (g/den)</label>
+    <input type="number" id="goal-protein" placeholder="napr. 150" min="0" />
+
+    <label>Sacharidy (g/den)</label>
+    <input type="number" id="goal-carbs" placeholder="napr. 200" min="0" />
+
+    <label>Tuky (g/den)</label>
+    <input type="number" id="goal-fat" placeholder="napr. 70" min="0" />
+
+    <label>Cilova vaha (kg)</label>
+    <input type="number" id="goal-weight" placeholder="napr. 75" step="0.1" min="20" max="300" />
+
+    <button class="btn full" onclick="saveGoals()">Ulozit cile</button>
+  </div>
+
+  <div class="card" style="max-width:500px; margin-top:20px">
+    <h2>Data</h2>
+    <p style="font-size:0.85rem; color:var(--text2); margin-bottom:12px">Vsechna data jsou ulozena lokalne v prohlizeci.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <button class="btn secondary" onclick="exportData()">Exportovat JSON</button>
+      <button class="btn danger" onclick="clearAllData()">Smazat vsechna data</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== STATE =====
+  let currentDate = todayStr();
+  let lastFood = null;
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function fmtDate(d) {
+    const [y, m, day] = d.split('-');
+    return `${day}. ${m}. ${y}`;
+  }
+
+  // ===== STORAGE =====
+  function loadData() {
+    return JSON.parse(localStorage.getItem('fitnessData') || '{"food":[],"weight":[],"goals":{},"favorites":[]}');
+  }
+
+  function saveData(data) {
+    localStorage.setItem('fitnessData', JSON.stringify(data));
+  }
+
+  // ===== TOAST =====
+  function showToast(msg, duration = 2200) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  // ===== NAVIGATION =====
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    refreshAll();
+  }
+
+  function changeDay(delta) {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + delta);
+    currentDate = d.toISOString().slice(0, 10);
+    refreshDashboard();
+  }
+
+  function goToday() {
+    currentDate = todayStr();
+    refreshDashboard();
+  }
+
+  // ===== FOOD =====
+  function addFood() {
+    const date = document.getElementById('food-date').value;
+    const name = document.getElementById('food-name').value.trim();
+    const amount = document.getElementById('food-amount').value.trim();
+    const kcal = parseFloat(document.getElementById('food-kcal').value) || 0;
+    const protein = parseFloat(document.getElementById('food-protein').value) || 0;
+    const carbs = parseFloat(document.getElementById('food-carbs').value) || 0;
+    const fat = parseFloat(document.getElementById('food-fat').value) || 0;
+
+    if (!name) { showToast('Zadejte nazev jidla'); return; }
+    if (!date) { showToast('Vyberte datum'); return; }
+
+    const entry = { id: Date.now(), date, name, amount, kcal, protein, carbs, fat };
+
+    const data = loadData();
+    data.food.push(entry);
+    saveData(data);
+
+    lastFood = entry;
+
+    document.getElementById('food-name').value = '';
+    document.getElementById('food-amount').value = '';
+    document.getElementById('food-kcal').value = '';
+    document.getElementById('food-protein').value = '';
+    document.getElementById('food-carbs').value = '';
+    document.getElementById('food-fat').value = '';
+
+    showToast('Jidlo pridano');
+    refreshFoodLog();
+    refreshDashboard();
+  }
+
+  function deleteFood(id) {
+    const data = loadData();
+    data.food = data.food.filter(f => f.id !== id);
+    saveData(data);
+    refreshFoodLog();
+    refreshDashboard();
+    showToast('Zaznam smazan');
+  }
+
+  function saveFavorite() {
+    if (!lastFood) { showToast('Nejdrive pridejte jidlo'); return; }
+    const data = loadData();
+    const fav = { ...lastFood, id: Date.now() };
+    delete fav.date;
+    data.favorites = data.favorites || [];
+    if (data.favorites.some(f => f.name === fav.name)) { showToast('Toto jidlo uz je oblibene'); return; }
+    data.favorites.push(fav);
+    saveData(data);
+    showToast('Ulozeno jako oblibene');
+    refreshFavorites();
+  }
+
+  function addFavorite(fav) {
+    const data = loadData();
+    const entry = { ...fav, id: Date.now(), date: document.getElementById('food-date').value || todayStr() };
+    data.food.push(entry);
+    saveData(data);
+    showToast('Pridano z oblibenych');
+    refreshFoodLog();
+    refreshDashboard();
+  }
+
+  function deleteFavorite(id) {
+    const data = loadData();
+    data.favorites = data.favorites.filter(f => f.id !== id);
+    saveData(data);
+    refreshFavorites();
+  }
+
+  function refreshFoodLog() {
+    const data = loadData();
+    const today = document.getElementById('food-date').value || todayStr();
+    document.getElementById('food-today-date').textContent = fmtDate(today);
+    const items = data.food.filter(f => f.date === today).sort((a, b) => a.id - b.id);
+    const el = document.getElementById('food-log-list');
+    el.innerHTML = items.length ? items.map(f => foodItemHTML(f)).join('') : '<div class="empty">Zadne zaznamy</div>';
+  }
+
+  function foodItemHTML(f) {
+    return `<div class="food-item">
+      <div>
+        <div class="name">${esc(f.name)}${f.amount ? ' <span class="badge">' + esc(f.amount) + '</span>' : ''}</div>
+        <div class="macros">B: ${f.protein}g &nbsp; S: ${f.carbs}g &nbsp; T: ${f.fat}g</div>
+      </div>
+      <div class="kcal">${f.kcal} kcal</div>
+      <button class="del-btn" onclick="deleteFood(${f.id})" title="Smazat">&#215;</button>
+    </div>`;
+  }
+
+  function refreshFavorites() {
+    const data = loadData();
+    const favs = data.favorites || [];
+    const el = document.getElementById('favorites-list');
+    if (!favs.length) { el.innerHTML = '<div class="empty">Zadna oblibena jidla</div>'; return; }
+    el.innerHTML = favs.map(f => `
+      <div class="food-item">
+        <div>
+          <div class="name">${esc(f.name)}</div>
+          <div class="macros">${f.kcal} kcal &nbsp; B: ${f.protein}g &nbsp; S: ${f.carbs}g &nbsp; T: ${f.fat}g</div>
+        </div>
+        <button class="btn secondary" style="margin:0;padding:5px 10px;font-size:0.8rem" onclick='addFavorite(${JSON.stringify(f)})'>+</button>
+        <button class="del-btn" onclick="deleteFavorite(${f.id})" title="Smazat">&#215;</button>
+      </div>`).join('');
+  }
+
+  // ===== WEIGHT =====
+  function addWeight() {
+    const date = document.getElementById('weight-date').value;
+    const val = parseFloat(document.getElementById('weight-val').value);
+    const note = document.getElementById('weight-note').value.trim();
+
+    if (!date) { showToast('Vyberte datum'); return; }
+    if (!val || val < 20 || val > 300) { showToast('Zadejte platnou vahu (20-300 kg)'); return; }
+
+    const data = loadData();
+    // Remove existing entry for same date
+    data.weight = data.weight.filter(w => w.date !== date);
+    data.weight.push({ date, val, note });
+    data.weight.sort((a, b) => a.date.localeCompare(b.date));
+    saveData(data);
+
+    document.getElementById('weight-val').value = '';
+    document.getElementById('weight-note').value = '';
+
+    showToast('Vaha zaznamenana');
+    refreshWeight();
+    refreshDashboard();
+  }
+
+  function deleteWeight(date) {
+    const data = loadData();
+    data.weight = data.weight.filter(w => w.date !== date);
+    saveData(data);
+    refreshWeight();
+    refreshDashboard();
+    showToast('Zaznam smazan');
+  }
+
+  function refreshWeight() {
+    const data = loadData();
+    const weights = data.weight;
+
+    // Stats
+    if (weights.length) {
+      const vals = weights.map(w => w.val);
+      document.getElementById('weight-start').textContent = weights[0].val.toFixed(1) + ' kg';
+      document.getElementById('weight-current').textContent = weights[weights.length - 1].val.toFixed(1) + ' kg';
+      document.getElementById('weight-min').textContent = Math.min(...vals).toFixed(1) + ' kg';
+      document.getElementById('weight-max').textContent = Math.max(...vals).toFixed(1) + ' kg';
+      const diff = weights[weights.length - 1].val - weights[0].val;
+      const chEl = document.getElementById('weight-change');
+      chEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' kg';
+      chEl.style.color = diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--accent3)' : 'var(--text2)';
+    } else {
+      ['weight-start', 'weight-current', 'weight-min', 'weight-max'].forEach(id => document.getElementById(id).textContent = '—');
+      document.getElementById('weight-change').textContent = '—';
+    }
+
+    // History list
+    const hist = document.getElementById('weight-history');
+    if (!weights.length) { hist.innerHTML = '<div class="empty">Zadne zaznamy vahy</div>'; } else {
+      hist.innerHTML = '<div class="weight-list">' + [...weights].reverse().map((w, i, arr) => {
+        const prev = arr[i + 1];
+        let deltaHTML = '';
+        if (prev) {
+          const d = w.val - prev.val;
+          const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
+          const sign = d > 0 ? '+' : '';
+          deltaHTML = `<span class="delta ${cls}">${sign}${d.toFixed(1)} kg</span>`;
+        }
+        return `<div class="weight-item">
+          <div>
+            <div class="date">${fmtDate(w.date)}${w.note ? ' — ' + esc(w.note) : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="wval">${w.val.toFixed(1)} kg</span>
+            ${deltaHTML}
+          </div>
+          <button class="del-btn" onclick="deleteWeight('${w.date}')" title="Smazat">&#215;</button>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    drawWeightChart(weights);
+  }
+
+  // ===== CHART =====
+  let weightChartInstance = null;
+
+  function drawWeightChart(weights) {
+    const canvas = document.getElementById('weightChart');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.parentElement.clientWidth;
+    const H = 200;
+    canvas.width = W;
+    canvas.height = H;
+
+    ctx.clearRect(0, 0, W, H);
+
+    if (weights.length < 2) {
+      ctx.fillStyle = '#8890a8';
+      ctx.font = '14px Segoe UI';
+      ctx.textAlign = 'center';
+      ctx.fillText('Pridejte alespon 2 zaznamy pro zobrazeni grafu', W / 2, H / 2);
+      return;
+    }
+
+    const vals = weights.map(w => w.val);
+    const min = Math.min(...vals) - 1;
+    const max = Math.max(...vals) + 1;
+    const pad = { l: 50, r: 20, t: 20, b: 30 };
+    const cW = W - pad.l - pad.r;
+    const cH = H - pad.t - pad.b;
+
+    function xPos(i) { return pad.l + (i / (weights.length - 1)) * cW; }
+    function yPos(v) { return pad.t + (1 - (v - min) / (max - min)) * cH; }
+
+    // Grid lines
+    ctx.strokeStyle = '#2e3250';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.t + (i / 4) * cH;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      const v = max - (i / 4) * (max - min);
+      ctx.fillStyle = '#8890a8';
+      ctx.font = '11px Segoe UI';
+      ctx.textAlign = 'right';
+      ctx.fillText(v.toFixed(1), pad.l - 6, y + 4);
+    }
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
+    grad.addColorStop(0, 'rgba(78,205,196,0.35)');
+    grad.addColorStop(1, 'rgba(78,205,196,0)');
+    ctx.beginPath();
+    ctx.moveTo(xPos(0), yPos(vals[0]));
+    weights.forEach((w, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(w.val)); });
+    ctx.lineTo(xPos(weights.length - 1), pad.t + cH);
+    ctx.lineTo(xPos(0), pad.t + cH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#4ecdc4';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.moveTo(xPos(0), yPos(vals[0]));
+    weights.forEach((w, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(w.val)); });
+    ctx.stroke();
+
+    // Points
+    weights.forEach((w, i) => {
+      ctx.beginPath();
+      ctx.arc(xPos(i), yPos(w.val), 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#4ecdc4';
+      ctx.fill();
+      ctx.strokeStyle = '#1a1d27';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // Date labels (only first, last, and some in between)
+    ctx.fillStyle = '#8890a8';
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'center';
+    const labelIndices = new Set([0, weights.length - 1]);
+    if (weights.length > 3) labelIndices.add(Math.floor(weights.length / 2));
+    labelIndices.forEach(i => {
+      const d = weights[i].date.slice(5).replace('-', '.');
+      ctx.fillText(d, xPos(i), H - 6);
+    });
+  }
+
+  // ===== DASHBOARD =====
+  function refreshDashboard() {
+    const data = loadData();
+    const goals = data.goals || {};
+
+    document.getElementById('dashDate').textContent = fmtDate(currentDate) + (currentDate === todayStr() ? ' (dnes)' : '');
+    document.getElementById('headerDate').textContent = fmtDate(todayStr());
+
+    // Calories
+    const dayFood = data.food.filter(f => f.date === currentDate);
+    const totKcal = dayFood.reduce((s, f) => s + (f.kcal || 0), 0);
+    const totProtein = dayFood.reduce((s, f) => s + (f.protein || 0), 0);
+    const totCarbs = dayFood.reduce((s, f) => s + (f.carbs || 0), 0);
+    const totFat = dayFood.reduce((s, f) => s + (f.fat || 0), 0);
+
+    document.getElementById('dash-kcal').textContent = Math.round(totKcal);
+    const gk = goals.kcal || 0;
+    document.getElementById('dash-kcal-goal').textContent = gk ? `Cil: ${gk} kcal (${Math.round(totKcal / gk * 100)}%)` : 'Cil neni nastaven';
+    document.getElementById('dash-kcal-bar').style.width = gk ? Math.min(100, totKcal / gk * 100) + '%' : '0%';
+
+    document.getElementById('dash-protein').textContent = Math.round(totProtein) + 'g';
+    document.getElementById('dash-carbs').textContent = Math.round(totCarbs) + 'g';
+    document.getElementById('dash-fat').textContent = Math.round(totFat) + 'g';
+    document.getElementById('dash-protein-goal').textContent = goals.protein ? `cil: ${goals.protein}g` : '';
+    document.getElementById('dash-carbs-goal').textContent = goals.carbs ? `cil: ${goals.carbs}g` : '';
+    document.getElementById('dash-fat-goal').textContent = goals.fat ? `cil: ${goals.fat}g` : '';
+
+    // Weight
+    const weights = data.weight;
+    if (weights.length) {
+      const latest = weights[weights.length - 1];
+      document.getElementById('dash-weight').textContent = latest.val.toFixed(1) + ' kg';
+      const prev = weights[weights.length - 2];
+      if (prev) {
+        const d = latest.val - prev.val;
+        const sign = d > 0 ? '+' : '';
+        const color = d < 0 ? 'var(--green)' : d > 0 ? 'var(--accent3)' : 'var(--text2)';
+        document.getElementById('dash-weight-delta').innerHTML = `<span style="color:${color}">${sign}${d.toFixed(1)} kg od posledniho zaznamu</span>`;
+      } else {
+        document.getElementById('dash-weight-delta').textContent = '';
+      }
+    } else {
+      document.getElementById('dash-weight').textContent = '—';
+      document.getElementById('dash-weight-delta').textContent = 'Zadny zaznam vahy';
+    }
+
+    // Food list
+    const flEl = document.getElementById('dash-food-list');
+    flEl.innerHTML = dayFood.length ? dayFood.map(f => foodItemHTML(f)).join('') : '<div class="empty">Zadne zaznamy pro tento den</div>';
+  }
+
+  // ===== GOALS =====
+  function saveGoals() {
+    const goals = {
+      kcal: parseFloat(document.getElementById('goal-kcal').value) || 0,
+      protein: parseFloat(document.getElementById('goal-protein').value) || 0,
+      carbs: parseFloat(document.getElementById('goal-carbs').value) || 0,
+      fat: parseFloat(document.getElementById('goal-fat').value) || 0,
+      weight: parseFloat(document.getElementById('goal-weight').value) || 0,
+    };
+    const data = loadData();
+    data.goals = goals;
+    saveData(data);
+    showToast('Cile ulozeny');
+    refreshDashboard();
+  }
+
+  function loadGoalsForm() {
+    const data = loadData();
+    const g = data.goals || {};
+    if (g.kcal) document.getElementById('goal-kcal').value = g.kcal;
+    if (g.protein) document.getElementById('goal-protein').value = g.protein;
+    if (g.carbs) document.getElementById('goal-carbs').value = g.carbs;
+    if (g.fat) document.getElementById('goal-fat').value = g.fat;
+    if (g.weight) document.getElementById('goal-weight').value = g.weight;
+  }
+
+  // ===== EXPORT / CLEAR =====
+  function exportData() {
+    const data = loadData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fitness-data-' + todayStr() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearAllData() {
+    if (!confirm('Opravdu chcete smazat vsechna data? Tato akce je nevratna.')) return;
+    localStorage.removeItem('fitnessData');
+    showToast('Vsechna data smazana');
+    refreshAll();
+  }
+
+  // ===== UTILS =====
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function refreshAll() {
+    refreshDashboard();
+    refreshFoodLog();
+    refreshFavorites();
+    refreshWeight();
+    loadGoalsForm();
+  }
+
+  // ===== INIT =====
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = todayStr();
+    document.getElementById('food-date').value = today;
+    document.getElementById('weight-date').value = today;
+    refreshAll();
+  });
+
+  window.addEventListener('resize', () => {
+    const data = loadData();
+    drawWeightChart(data.weight || []);
+  });
+</script>
+</body>
+</html>
