@@ -1,0 +1,26 @@
+{
+  "name": "SKK Čtyřkoly Fitness",
+  "short_name": "SKK Fit",
+  "description": "Osobní fitness deník SKK Čtyřkoly",
+  "start_url": "/Benny-Fitness/",
+  "scope": "/Benny-Fitness/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07111f",
+  "theme_color": "#0c1c35",
+  "lang": "cs",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>SKK Čtyřkoly Fitness</title>
+  <title>SKK Fit</title>
+  <meta name="application-name" content="SKK Fit" />
+  <meta name="theme-color" content="#0c1c35" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SKK Fit" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <style>
     /* ====================================================
        RESET & CSS PROMĚNNÉ
@@ -63,14 +72,17 @@
     }
 
     .logo-ikona {
-      width: 38px; height: 38px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      border-radius: 11px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.15rem; font-weight: 900;
-      color: var(--navy);
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(245,166,35,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .logo-ikona img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .logo-text { line-height: 1.25; }
@@ -517,7 +529,7 @@
      HLAVIČKA
 ==================================================== -->
 <header>
-  <div class="logo-ikona">S</div>
+  <div class="logo-ikona"><img src="4koly.png" alt="SKK Čtyřkoly" /></div>
   <div class="logo-text">
     <div class="nazev">SKK Čtyřkoly Fitness</div>
     <div class="podtit">Osobní fitness deník</div>
@@ -843,6 +855,14 @@
 </nav>
 
 <div class="toast" id="toast"></div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
 
 <script>
 /* ============================================================
